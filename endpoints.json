@@ -1,0 +1,35 @@
+{
+  "endpoints": [
+    {
+      "users":
+        {
+          "get": "",
+          "create": "",
+          "update": "",
+          "delete": ""
+        },
+      "projects":
+      {
+        "get": "",
+        "create": "",
+        "update": "",
+        "delete": "",
+        "approve": ""
+      },
+      "categories":
+      {
+        "get": "",
+        "create": "",
+        "update": "",
+        "delete": ""
+      },
+      "transaction":
+      {
+        "get": "",
+        "create": "",
+        "update": "",
+        "delete": ""
+      }
+    }
+  ]
+}
