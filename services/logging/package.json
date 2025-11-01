@@ -1,5 +1,5 @@
 {
-  "name": "event",
+  "name": "logging",
   "version": "1.0.0",
   "description": "",
   "license": "ISC",
@@ -10,6 +10,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "@auth/express": "^0.12.1",
+    "amqplib": "^0.10.9",
     "express": "^5.1.0"
   }
 }

@@ -3,6 +3,19 @@ services:
     build: ./services/authentication
     ports:
       - "3001:3000"
+  users-service:
+    build: ./services/users
+    ports:
+      - "3002:3000"
+  logging-service:
+    build: ./services/users
+    ports:
+      - "3002:3000"
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"   # RabbitMQ messaging
+      - "15672:15672" # RabbitMQ management interface
 #  project-service:
 #    build: ./services/project-service
 #    ports:
