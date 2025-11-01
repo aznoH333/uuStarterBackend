@@ -10,11 +10,15 @@ RUN sed -i 's/debian.org/ftp.us.debian.org/' /etc/apt/sources.list && \
 
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm install
+ARG COMMON_DIR=../../common
+ARG SRC_DIR=./src
 
-COPY ./src ./src
+
+COPY ${COMMON_DIR} ./common
+COPY ${SRC_DIR}/../package*.json ./
+RUN npm install
+COPY ${SRC_DIR} ./services/users/src
 
 EXPOSE 3000
 
-CMD ["node", "src/index.js"]
+CMD ["node", "services/users/src/index.js"]
