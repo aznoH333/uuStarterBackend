@@ -10,7 +10,7 @@ services:
   logging-service:
     build: ./services/users
     ports:
-      - "3002:3000"
+      - "3003:3000"
   rabbitmq:
     image: rabbitmq:3-management
     ports:

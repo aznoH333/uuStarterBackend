@@ -6,6 +6,7 @@
 
 ``$ docker compose up --build``
 
+---
 
 ### How to setup new service
 
