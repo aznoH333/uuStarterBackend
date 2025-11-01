@@ -7,7 +7,7 @@ app.get('/', (req, res) => {
     sendMessageToChannel({
         test: "this is a test field",
         wohoo: "hello world"
-    }, "audit_logs");
+    }, SUPPORTED_CHANNELS.LOG);
 });
 
 app.listen(3000, () => {
@@ -15,23 +15,5 @@ app.listen(3000, () => {
 });
 
 
-const amqp = require('amqplib');
-const {sendMessageToChannel} = require("../../../common/rabbitMqUtils");
 
-async function sendAuditLog(log) {
-    const connection = await amqp.connect('amqp://rabbitmq'); // Use service name defined in docker-compose
-    const channel = await connection.createChannel();
-
-    const queue = 'audit_logs';
-    await channel.assertQueue(queue);
-
-    channel.sendToQueue(queue, Buffer.from(JSON.stringify(log)));
-
-    console.log("Audit log sent:", log);
-
-    setTimeout(() => {
-        connection.close();
-    }, 500);
-}
-
-module.exports = { sendAuditLog };
+const {sendMessageToChannel, SUPPORTED_CHANNELS} = require("../../../common/rabbitMqUtils");

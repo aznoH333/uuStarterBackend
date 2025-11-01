@@ -17,8 +17,8 @@ ARG SRC_DIR=./src
 COPY ${COMMON_DIR} ./common
 COPY ${SRC_DIR}/../package*.json ./
 RUN npm install
-COPY ${SRC_DIR} ./services/users/src
+COPY ${SRC_DIR} ./services/service/src
 
 EXPOSE 3000
 
-CMD ["node", "services/users/src/index.js"]
+CMD ["node", "services/service/src/index.js"]
