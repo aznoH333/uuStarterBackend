@@ -4,11 +4,21 @@ services:
     ports:
       - "3001:3000"
   users-service:
-    build: ./services/users
+    build:
+      context: .
+      args:
+        COMMON_DIR: ./common
+        SRC_DIR: ./services/users/src
+      dockerfile: ./services/users/Dockerfile
     ports:
       - "3002:3000"
   logging-service:
-    build: ./services/users
+    build:
+      context: .
+      args:
+        COMMON_DIR: ./common
+        SRC_DIR: ./services/logging/src
+      dockerfile: ./services/logging/Dockerfile
     ports:
       - "3003:3000"
   rabbitmq:
