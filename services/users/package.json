@@ -12,6 +12,7 @@
   "dependencies": {
     "@auth/express": "^0.12.1",
     "amqplib": "^0.10.9",
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "mongoose": "^8.19.3"
   }
 }

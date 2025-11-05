@@ -1,9 +1,6 @@
 const express = require('express');
 const app = express();
-const { Log} = require("./dbInit");
-
-
-
+const {Log} = require("./dbInit");
 
 app.get('/', async (req, res) => {
 

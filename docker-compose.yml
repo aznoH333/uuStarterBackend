@@ -12,6 +12,7 @@ services:
   users-service:
     depends_on:
       - rabbitmq
+      - user-db
     build:
       context: .
       args:
@@ -20,6 +21,16 @@ services:
       dockerfile: ./services/users/Dockerfile
     ports:
       - "3002:3000"
+    environment:
+      - DATABASE_URI=mongodb://user-db:27019/users
+
+  user-db:
+    image: mongo
+    volumes:
+      - user-db-data:/data/db
+    ports:
+      - "27019:27019"
+
 
   # logging
   logging-service:
@@ -86,4 +97,5 @@ services:
 
 volumes:
   logging-db-data:
+  user-db-data:
   projects-db-data:
