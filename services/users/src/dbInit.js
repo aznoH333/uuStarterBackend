@@ -1,10 +1,7 @@
 const mongoose = require('mongoose');
 
 // MongoDB connection
-mongoose.connect('mongodb://user-db:27019/users', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-});
+mongoose.connect('mongodb://user-db:27019/users', {});
 
 // Create a Mongoose schema and model
 const UserSchema = new mongoose.Schema({

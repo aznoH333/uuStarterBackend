@@ -21,7 +21,7 @@ const PROJECT_STATUS = {
 }
 
 
-class Project {
+class ProjectEntity {
     constructor(_id, name, description, ownerId, creationDate, lastUpdatedDate, goalAmount, deadLine, status, categoryId) {
         this._id = _id;
         this.name = name;
@@ -36,7 +36,7 @@ class Project {
     }
 
     static fromJson(data) {
-        return new Project(
+        return new ProjectEntity(
             data._id,
             data.name,
             data.description,
@@ -58,10 +58,10 @@ class Project {
      * @param goalAmount : Number - number in $?
      * @param deadLine : Date
      * @param categoryId : String | undefined - category id (optional)
-     * @returns {Project}
+     * @returns {ProjectEntity}
      */
     static createNew(name, description, ownerId, goalAmount, deadLine, categoryId = undefined) {
-        return new Project(
+        return new ProjectEntity(
             undefined,
             name,
             description,
@@ -75,3 +75,5 @@ class Project {
         );
     }
 }
+
+module.exports = { PROJECT_STATUS, ProjectEntity }

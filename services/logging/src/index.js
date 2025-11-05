@@ -1,6 +1,8 @@
 const express = require('express');
 const app = express();
 const {Log} = require("./dbInit");
+const {listenOnChannel, SUPPORTED_CHANNELS} = require("../../../common/utils/rabbitMqUtils");
+
 
 app.get('/', async (req, res) => {
 
@@ -13,7 +15,6 @@ app.listen(3000, () => {
     console.log('Logging server is running on port 3000');
 });
 
-const {listenOnChannel, SUPPORTED_CHANNELS} = require("../../../common/utils/rabbitMqUtils");
 
 async function logMessage(message) {
     console.log("Recieved log: " + message, Object.keys(message));

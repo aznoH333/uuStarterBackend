@@ -1,10 +1,7 @@
 const mongoose = require('mongoose');
 
 // MongoDB connection
-mongoose.connect('mongodb://logging-db:27017/logs', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-});
+mongoose.connect('mongodb://logging-db:27017/logs', {});
 
 // Create a Mongoose schema and model
 const LogSchema = new mongoose.Schema({
