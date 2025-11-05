@@ -12,7 +12,7 @@ app.listen(3000, () => {
 const {listenOnChannel, SUPPORTED_CHANNELS} = require("../../../common/rabbitMqUtils");
 
 function logMessage(message) {
-    console.log("Recieved log: " + message);
+    console.log("Recieved log: " + message, Object.keys(message));
 }
 
 
