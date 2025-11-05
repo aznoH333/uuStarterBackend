@@ -11,7 +11,7 @@
 ### How to set up a new service
 
 1. create directory inside ``./services/{service name}``
-2. run ``$ npm init``
+2. run ``$ npm init -y``
 3. run ``$ npm i express @auth/express amqplib mongoose`` (install mongoose only if db interaction is necessary)
 4. add your service to ``docker-compose.yml`` (use other existing services as inspiration)
 5. define the service db in ``docker-compose.yml`` (can be skipped if service doesn't need a db).

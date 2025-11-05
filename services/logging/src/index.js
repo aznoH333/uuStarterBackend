@@ -16,7 +16,7 @@ app.listen(3000, () => {
     console.log('Logging server is running on port 3000');
 });
 
-const {listenOnChannel, SUPPORTED_CHANNELS} = require("../../../common/rabbitMqUtils");
+const {listenOnChannel, SUPPORTED_CHANNELS} = require("../../../common/utils/rabbitMqUtils");
 
 async function logMessage(message) {
     console.log("Recieved log: " + message, Object.keys(message));

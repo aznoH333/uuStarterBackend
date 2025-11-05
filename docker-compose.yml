@@ -44,6 +44,29 @@ services:
     ports:
       - "27017:27017"
 
+  # projects
+  projects-service:
+    depends_on:
+      - rabbitmq
+      - projects-db
+    build:
+      context: .
+      args:
+        COMMON_DIR: ./common
+        SRC_DIR: ./services/projects/src
+      dockerfile: ./services/projects/Dockerfile
+    ports:
+      - "3004:3000"
+    environment:
+      - DATABASE_URI=mongodb://projects-db:27018/projects
+
+  projects-db:
+    image: mongo
+    volumes:
+      - projects-db-data:/data/db
+    ports:
+      - "27018:27017"
+
 
   # rabbit
   rabbitmq:
@@ -63,3 +86,4 @@ services:
 
 volumes:
   logging-db-data:
+  projects-db-data:

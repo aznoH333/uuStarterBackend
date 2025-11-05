@@ -13,4 +13,4 @@ app.listen(3000, () => {
 
 
 
-const {sendLog, LOG_TYPE} = require("../../../common/loggingUtils");
+const {sendLog, LOG_TYPE} = require("../../../common/utils/loggingUtils");
