@@ -12,9 +12,11 @@
 
 1. create directory inside ``./services/{service name}``
 2. run ``$ npm init``
-3. run ``$ npm i express @auth/express amqplib``
+3. run ``$ npm i express @auth/express amqplib mongoose`` (install mongoose only if db interaction is necessary)
 4. add your service to ``docker-compose.yml`` (use other existing services as inspiration)
-5. add a file named ``Dockerfile`` to your service root. Copy the contents from an existing service
+5. define the service db in ``docker-compose.yml`` (can be skipped if service doesn't need a db).
+Remember to also define a volume for your db (bottom of the file)
+6. add a file named ``Dockerfile`` to your service root. Copy the contents from an existing service
 
 ---
 

@@ -4,10 +4,7 @@ const app = express();
 app.get('/', (req, res) => {
     res.send('Hello World');
 
-    sendMessageToChannel({
-        test: "this is a test field",
-        wohoo: "hello world"
-    }, SUPPORTED_CHANNELS.LOG);
+    sendLog("This is a test log", LOG_TYPE.INFO);
 });
 
 app.listen(3000, () => {
@@ -16,4 +13,4 @@ app.listen(3000, () => {
 
 
 
-const {sendMessageToChannel, SUPPORTED_CHANNELS} = require("../../../common/rabbitMqUtils");
+const {sendLog, LOG_TYPE} = require("../../../common/loggingUtils");

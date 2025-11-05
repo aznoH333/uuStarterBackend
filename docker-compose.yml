@@ -1,9 +1,17 @@
 services:
+
+  # authentication
   authentication-service:
+    depends_on:
+      - rabbitmq
     build: ./services/authentication
     ports:
       - "3001:3000"
+
+  # users
   users-service:
+    depends_on:
+      - rabbitmq
     build:
       context: .
       args:
@@ -12,7 +20,12 @@ services:
       dockerfile: ./services/users/Dockerfile
     ports:
       - "3002:3000"
+
+  # logging
   logging-service:
+    depends_on:
+      - rabbitmq
+      - logging-db
     build:
       context: .
       args:
@@ -21,6 +34,18 @@ services:
       dockerfile: ./services/logging/Dockerfile
     ports:
       - "3003:3000"
+    environment:
+      - DATABASE_URI=mongodb://logging-db:27017/logging
+
+  logging-db:
+    image: mongo
+    volumes:
+      - logging-db-data:/data/db
+    ports:
+      - "27017:27017"
+
+
+  # rabbit
   rabbitmq:
     image: rabbitmq:3-management
     ports:
@@ -34,3 +59,7 @@ services:
 #    image: mongo
 #    ports:
 #      - "27017:27017"
+
+
+volumes:
+  logging-db-data:
