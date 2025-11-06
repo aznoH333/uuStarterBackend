@@ -17,7 +17,6 @@ app.post("/find-by-email", async (req, res) => {
         authType: user.authType,
     });
 });
-
 app.post('/create-basic', async (req, res) => {
     try {
         const name = (req.body.name || '').trim();
@@ -51,14 +50,12 @@ app.post('/create-basic', async (req, res) => {
         return res.status(500).json({ error: "Internal error" });
     }
 });
-
 app.post('/create-google', async (req, res) => {
     try {
         const name = (req.body.name || '').trim();
-        const email = normalizeEmail(req.body.email);
+        const email = req.body.email
         if (!email) return res.status(400).json({ error: "Missing email" });
 
-        // Pokud už existuje, jen vrať
         let user = await User.findOne({ email });
         if (user) return res.status(200).json(user);
 
@@ -66,7 +63,7 @@ app.post('/create-google', async (req, res) => {
             name: name || email.split('@')[0],
             email,
             password: null,
-            role: "user",
+            role: "user".toUpperCase(),
             authType: "GOOGLE",
             lastLoginAt: Date.now(),
         });
