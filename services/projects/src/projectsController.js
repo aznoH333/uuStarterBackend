@@ -92,6 +92,7 @@ function useProjectsController(app) {
             res.status(400).send();
         }
     });
+
 }
 
 /**
@@ -101,8 +102,7 @@ function useProjectsController(app) {
  */
 async function getProjectById(projectId) {
     try {
-        const project = await Project.findById(projectId);
-        return project;
+        return await Project.findById(projectId);
     }catch (e) {
         return undefined;
     }

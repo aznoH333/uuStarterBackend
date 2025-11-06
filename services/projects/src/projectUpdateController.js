@@ -65,8 +65,91 @@ function useProjectUpdateController(app) {
             sendLog("Failed to create project update : " + req.body, LOG_TYPE.ERROR);
             res.status(400).send();
         }
+    });
 
-    })
+    /**
+     * get project post
+     */
+    app.get("/:projectId/posts/:postId", async (req, res) => {
+        const { projectId, postId } = req.params;
+
+        const post = getProjectPostById(projectId, postId);
+
+        if (!post) {
+            res.status(400).send();
+        }
+
+        res.status(200).json(post).send();
+    });
+
+    app.post("/:projectId/posts/:postId", async (req, res) => {
+        const { projectId, postId } = req.params;
+
+
+        console.debug("here");
+        const post = await getProjectPostById(projectId, postId);
+        console.debug("here2");
+
+        if (post === undefined) {
+            res.status(400).send();
+        }
+        console.debug("here3");
+
+        try {
+            post.name = req.body.name;
+            post.content = req.body.content;
+            post.lastUpdatedDate = new Date();
+            console.debug("here4");
+
+            await post.save();
+            console.debug("here5");
+
+            sendLog("Updated post " + post, LOG_TYPE.INFO);
+
+            res.status(200).send();
+        }catch(e) {
+            sendLog("Failed to update post " + e, LOG_TYPE.ERROR);
+            res.status(400).send();
+        }
+    });
+
+    app.delete("/:projectId/posts/:postId", async (req, res) => {
+        const { projectId, postId } = req.params;
+
+        const post = await getProjectPostById(projectId, postId);
+
+        if (!post) {
+            res.status(400).send();
+        }
+
+
+        try {
+            await ProjectUpdate.deleteOne({"_id": postId, "projectId": projectId});
+            res.status(200).send();
+        }catch(e) {
+            res.status(400).send();
+        }
+    });
+}
+
+
+/**
+ * @param projectId
+ * @param postId
+ * @returns {Promise<undefined|ProjectUpdate>}
+ */
+async function getProjectPostById(projectId, postId) {
+    const project = getProjectById(projectId);
+
+    if (!project) {
+        return undefined;
+    }
+
+    try {
+        return await ProjectUpdate.findOne({"_id": postId, "projectId": projectId});
+    }catch (e) {
+        return undefined;
+    }
 }
 
 
