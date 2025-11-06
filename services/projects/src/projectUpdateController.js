@@ -86,23 +86,18 @@ function useProjectUpdateController(app) {
         const { projectId, postId } = req.params;
 
 
-        console.debug("here");
         const post = await getProjectPostById(projectId, postId);
-        console.debug("here2");
 
         if (post === undefined) {
             res.status(400).send();
         }
-        console.debug("here3");
 
         try {
             post.name = req.body.name;
             post.content = req.body.content;
             post.lastUpdatedDate = new Date();
-            console.debug("here4");
 
             await post.save();
-            console.debug("here5");
 
             sendLog("Updated post " + post, LOG_TYPE.INFO);
 

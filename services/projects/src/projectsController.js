@@ -44,12 +44,9 @@ function useProjectsController(app) {
             req.body.deadLine,
             req.body.categoryId,
         );
-        console.debug(Object.values(project));
-        console.debug(req.body)
 
         try {
             const newProject = new Project({...project});
-            console.debug(newProject)
             await newProject.save();
             sendLog("Created new project : " + newProject._id.toString(), LOG_TYPE.INFO);
             res.status(200).send();
