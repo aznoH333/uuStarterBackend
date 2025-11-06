@@ -1,6 +1,7 @@
 [ ] auth for posts
 [ ] project reviews
-[ ] project comment
+[X] project comment
 [ ] money
 [ ] add project completion % to projects
 [ ] set fixed time format (iso probably)
+[ ] use auth id from header when creating comments/projects

@@ -30,4 +30,15 @@ const ProjectUpdateSchema = new mongoose.Schema({
 });
 const ProjectUpdate = mongoose.model("ProjectUpdate", ProjectUpdateSchema);
 
-module.exports = { ProjectSchema, Project, ProjectUpdate, ProjectUpdateSchema }
+
+// Project comment
+const ProjectCommentSchema = new mongoose.Schema({
+    authorId: { type: String, required: true },
+    projectId: { type: String, required: true },
+    content: { type: String, required: true },
+    creationDate: { type: Date, required: true },
+});
+const ProjectComment = mongoose.model("ProjectComment", ProjectCommentSchema);
+
+
+module.exports = { ProjectSchema, Project, ProjectUpdate, ProjectUpdateSchema, ProjectCommentSchema, ProjectComment }

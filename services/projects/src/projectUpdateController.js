@@ -4,13 +4,6 @@ const {sendLog, LOG_TYPE} = require("../../../common/utils/loggingUtils");
 
 
 
-/*
-name: { type: String, required: true },
-    projectId: { type: String, required: true },
-    content: { type: String, required: true },
-    creationDate: { type: String, required: true},
-    lastUpdatedDate: { type: Date, required: true },
- */
 
 function useProjectUpdateController(app) {
     /**
@@ -73,7 +66,7 @@ function useProjectUpdateController(app) {
     app.get("/:projectId/posts/:postId", async (req, res) => {
         const { projectId, postId } = req.params;
 
-        const post = getProjectPostById(projectId, postId);
+        const post = await getProjectPostById(projectId, postId);
 
         if (!post) {
             res.status(400).send();
