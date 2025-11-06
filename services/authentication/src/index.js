@@ -19,7 +19,7 @@ app.use(express.json());
 
     const authConfig = {
         secret: process.env.AUTH_SECRET,
-        basePath: "/auth",                // DŮLEŽITÉ
+        basePath: "/auth",
         providers: [
             Google({
                 clientId: process.env.GOOGLE_ID,
@@ -53,7 +53,7 @@ app.use(express.json());
             process.env.JWT_SECRET,
             { expiresIn: process.env.JWT_EXPIRES || "15m" }
         );
-        res.json({ token, expiresIn: process.env.JWT_EXPIRES || "15m" });
+        res.json({ token, expiresIn: process.env.JWT_EXPIRES || "15m", email: session.user.email, role: session.user.role });
     });
 
     // auth middleware
@@ -71,6 +71,39 @@ app.use(express.json());
             next();
         };
     }
+    app.post("/login-basic", async (req, res) => {
+        const { email, password } = req.body;
+        if (!email || !password) {
+            return res.status(400).json({ error: "Missing email or password" });
+        }
+
+        try {
+            // get user na user-service
+            const userRes = await fetch("/find-by-email", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email }),
+            });
+            if (!userRes.ok) return res.status(401).json({ error: "Invalid credentials" });
+            const user = await userRes.json();
+
+            // Ověření hesla
+            const match = await bcrypt.compare(password, user.passwordHash);
+            if (!match) return res.status(401).json({ error: "Invalid credentials" });
+
+            // Vydání JWT
+            const token = jwt.sign(
+                { email: user.email, role: user.role },
+                process.env.JWT_SECRET,
+                { expiresIn: process.env.JWT_EXPIRES || "15m" }
+            );
+
+            res.json({ token, expiresIn: process.env.JWT_EXPIRES || "15m", email: user.email, role: user.role });
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: "Internal error" });
+        }
+    });
 
     app.get("/api/me", authenticateJWT, (req, res) => res.json({ user: req.user }));
     app.get("/api/admin", authenticateJWT, requireRole("admin"), (_req, res) => res.json({ ok: true }));

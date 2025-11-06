@@ -29,7 +29,7 @@ services:
     volumes:
       - user-db-data:/data/db
     ports:
-      - "27019:27019"
+      - "27019:27017"
 
 
   # logging
