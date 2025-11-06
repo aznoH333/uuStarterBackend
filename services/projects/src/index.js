@@ -36,6 +36,8 @@ app.get("/:projectId", async (req, res) => {
  * @returns {ProjectEntity}
  */
 app.post("/", async (req, res) => {
+    // check auth permissions
+
     const project = ProjectEntity.createNew(
         req.body.name,
         req.body.description,
@@ -51,12 +53,44 @@ app.post("/", async (req, res) => {
         const newProject = new Project({...project});
         console.debug(newProject)
         await newProject.save();
-        sendLog("Created new project : " + project.toString(), LOG_TYPE.INFO);
+        sendLog("Created new project : " + newProject._id.toString(), LOG_TYPE.INFO);
         res.status(200).send();
     }catch (e) {
-        sendLog("Failed to create a project : " + project.toString() + "\n Failed with error : " + e, LOG_TYPE.ERROR);
+        sendLog("Failed to create a project : " + project + "\n Failed with error : " + e, LOG_TYPE.ERROR);
         res.status(400).send();
 
+    }
+});
+
+/**
+ * Updates existing project
+ * @param name : String
+ * @param description : String
+ * @param goalAmount : Number - number in $?
+ * @param deadLine : Date
+ * @param categoryId : String | undefined - category id (optional)
+ * @param status : String - supported values ["PendingApproval", "Approved", "Rejected", "Closed"]
+ */
+app.post("/:projectId", async (req, res)=> {
+    const { projectId } = req.params;
+
+    try {
+        const project = await Project.findById(projectId);
+
+        project.name = req.body.name;
+        project.description = req.body.description;
+        project.goalAmount = req.body.goalAmount;
+        project.deadLine = req.body.deadLine;
+        project.categoryId = req.body.categoryId;
+        project.status = req.body.status;
+
+        await project.save();
+        sendLog("Updated project : " + project._id.toString(), LOG_TYPE.INFO);
+        res.status(200).send();
+
+    }catch (e) {
+        sendLog("Failed to find project : " + projectId + "\n Failed with error : " + e, LOG_TYPE.ERROR);
+        res.status(400);
     }
 });
 
@@ -65,6 +99,8 @@ app.post("/", async (req, res) => {
 
 app.listen(3000, () => {
     console.log('Projects service is running on port 3000');
+
+
 });
 
 
