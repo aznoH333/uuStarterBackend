@@ -1,12 +1,5 @@
 
-/*
-const ProjectCommentSchema = new mongoose.Schema({
-    authorId: { type: String, required: true },
-    projectId: { type: String, required: true },
-    content: { type: String, required: true },
-    creationDate: { type: Date, required: true },
-});
- */
+
 
 const {getProjectById} = require("./projectsController");
 const {ProjectComment} = require("./dbInit");
@@ -35,7 +28,7 @@ function useProjectCommentController(app) {
 
     /**
      * Add a new project comment
-     * @param name : String,
+     * @param authorId : String,
      * @param content : String,
      */
     app.post("/:projectId/comments", async (req, res) => {

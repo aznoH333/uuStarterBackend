@@ -1,0 +1,1016 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "uuStarterBackend",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/logging/": {
+      "get": {
+        "description": "Returns all logs",
+        "responses": {
+          "200": {
+            "description": "Returns a list of all logs in the application",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LogEntry"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/projects/": {
+      "get": {
+        "summary": "Retrieve all projects",
+        "responses": {
+          "200": {
+            "description": "A list of projects",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Project"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Projects"
+        ]
+      },
+      "post": {
+        "summary": "Create a new project",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "ownerId": {
+                    "type": "string"
+                  },
+                  "goalAmount": {
+                    "type": "integer"
+                  },
+                  "deadLine": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2025-11-05T14:51:54.670Z"
+                  },
+                  "categoryId": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                },
+                "required": [
+                  "name",
+                  "description",
+                  "ownerId",
+                  "goalAmount",
+                  "deadLine"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Project created successfully"
+          },
+          "400": {
+            "description": "Bad request, failed to create project"
+          }
+        },
+        "tags": [
+          "Projects"
+        ]
+      }
+    },
+    "/projects/{projectId}/": {
+      "get": {
+        "summary": "Retrieve a specific project by ID",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the project to retrieve",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A project object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Project"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request, project not found"
+          }
+        },
+        "tags": [
+          "Projects"
+        ]
+      },
+      "post": {
+        "summary": "Update an existing project",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the project to update",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "goalAmount": {
+                    "type": "integer"
+                  },
+                  "deadLine": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "categoryId": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "PendingApproval",
+                      "Approved",
+                      "Rejected",
+                      "Closed"
+                    ]
+                  }
+                },
+                "required": [
+                  "name",
+                  "description",
+                  "goalAmount",
+                  "deadLine",
+                  "status"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Project updated successfully"
+          },
+          "400": {
+            "description": "Bad request, project not found or failed to update"
+          }
+        },
+        "tags": [
+          "Projects"
+        ]
+      }
+    },
+    "/{projectId}/posts/": {
+      "get": {
+        "summary": "Get all project posts associated with a project",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the project",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of project posts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProjectUpdate"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request, project not found"
+          }
+        },
+        "tags": [
+          "Project Posts"
+        ]
+      },
+      "post": {
+        "summary": "Add a new project post",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the project",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "Project Update"
+                  },
+                  "content": {
+                    "type": "string",
+                    "example": "This is an update regarding the project."
+                  }
+                },
+                "required": [
+                  "name",
+                  "content"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Post created successfully"
+          },
+          "400": {
+            "description": "Bad request, project not found or failed to create post"
+          }
+        },
+        "tags": [
+          "Project Posts"
+        ]
+      }
+    },
+    "/{projectId}/posts/{postId}/": {
+      "get": {
+        "summary": "Get a specific project post",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the project",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "postId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the post",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A project post object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectUpdate"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request, post not found"
+          }
+        },
+        "tags": [
+          "Project Posts"
+        ]
+      },
+      "post": {
+        "summary": "Update an existing project post",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the project",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "postId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the post to update",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "content": {
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Post updated successfully"
+          },
+          "400": {
+            "description": "Bad request, post not found or failed to update"
+          }
+        },
+        "tags": [
+          "Project Posts"
+        ]
+      },
+      "delete": {
+        "summary": "Deletes a project post",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the project",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "postId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the post to delete",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted a post"
+          },
+          "400": {
+            "description": "Bad request, post not found"
+          }
+        },
+        "tags": [
+          "Project Posts"
+        ]
+      }
+    },
+    "/{projectId}/comments/": {
+      "get": {
+        "summary": "Get all project comments associated with a project",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the project",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of project comments",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProjectComment"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request, project not found"
+          }
+        },
+        "tags": [
+          "Project Comments"
+        ]
+      },
+      "post": {
+        "summary": "Add a new project comment",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the project",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "authorId": {
+                    "type": "string",
+                    "example": "690b6671afadc5771a921d81"
+                  },
+                  "content": {
+                    "type": "string",
+                    "example": "Lorem ispum"
+                  }
+                },
+                "required": [
+                  "authorId",
+                  "content"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Comment created successfully"
+          },
+          "400": {
+            "description": "Bad request, project not found or failed to comment post"
+          }
+        },
+        "tags": [
+          "Project Comments"
+        ]
+      }
+    },
+    "/{projectId}/comments/{commentId}": {
+      "get": {
+        "summary": "Get a specific project comment",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the project",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "commentId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the comment",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A project comment object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectComment"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request, comment not found"
+          }
+        },
+        "tags": [
+          "Project Comments"
+        ]
+      },
+      "post": {
+        "summary": "Update an existing project comment",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the project",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "commentId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the comment to update",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "content": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "content"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Comment updated successfully"
+          },
+          "400": {
+            "description": "Bad request, comment not found or failed to update"
+          }
+        },
+        "tags": [
+          "Project Comment"
+        ]
+      },
+      "delete": {
+        "summary": "Deletes a project comment",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the comment",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "commentId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the comment to delete",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted the comment"
+          },
+          "400": {
+            "description": "Bad request, comment not found"
+          }
+        },
+        "tags": [
+          "Project Comment"
+        ]
+      }
+    },
+    "/{projectId}/ratings/": {
+      "get": {
+        "summary": "Get all project ratings associated with a project",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "description": "Unique identifier for the project",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of project ratings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProjectRating"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Project not found"
+          }
+        }
+      },
+      "post": {
+        "summary": "Add a new project rating",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "description": "Unique identifier for the project",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectRating"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully created project rating"
+          },
+          "400": {
+            "description": "Project not found or invalid rating data"
+          }
+        }
+      }
+    },
+    "/{projectId}/ratings/{ratingId}/": {
+      "get": {
+        "summary": "Get a project rating by ID",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "description": "Unique identifier for the project",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ratingId",
+            "in": "path",
+            "required": true,
+            "description": "Unique identifier for the rating",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The requested project rating",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectRating"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Rating not found"
+          }
+        }
+      },
+      "post": {
+        "summary": "Update a project rating by ID",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "description": "Unique identifier for the project",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ratingId",
+            "in": "path",
+            "required": true,
+            "description": "Unique identifier for the rating",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  ""
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully updated rating"
+          },
+          "400": {
+            "description": "Rating not found or invalid data"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a project rating by ID",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "description": "Unique identifier for the project",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ratingId",
+            "in": "path",
+            "required": true,
+            "description": "Unique identifier for the rating",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully deleted rating"
+          },
+          "400": {
+            "description": "Rating not found"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "LogEntry": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "690b6671afadc5771a921d81"
+          },
+          "logMessage": {
+            "type": "string",
+            "example": "Failed to create a project : ..."
+          },
+          "logType": {
+            "type": "string",
+            "enum": ["ERROR", "INFO", "DEBUG"]
+          },
+          "time": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-11-05T15:00:01.508Z"
+          }
+        },
+        "required": ["_id", "logMessage", "logType", "time"]
+      },
+      "Project": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "690b6710c001cd0566cf85a8"
+          },
+          "name": {
+            "type": "string",
+            "example": "Debug project"
+          },
+          "description": {
+            "type": "string",
+            "example": "Hello world"
+          },
+          "ownerId": {
+            "type": "string"
+          },
+          "creationDate": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-11-05T15:02:40.949Z"
+          },
+          "lastUpdatedDate": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-11-05T15:02:40.949Z"
+          },
+          "goalAmount": {
+            "type": "integer",
+            "example": 20
+          },
+          "deadLine": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-11-05T14:51:54.670Z"
+          },
+          "categoryId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PendingApproval",
+              "Approved",
+              "Rejected",
+              "Closed"
+            ]
+          }
+        },
+        "required": [
+          "_id",
+          "name",
+          "description",
+          "ownerId",
+          "creationDate",
+          "lastUpdatedDate",
+          "goalAmount",
+          "deadLine",
+          "status"
+        ]
+      },
+      "ProjectUpdate": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "60ccf5d1f1d3f14b1c97b3a8"
+          },
+          "name": {
+            "type": "string",
+            "example": "Project Update"
+          },
+          "projectId": {
+            "type": "string",
+            "example": "690b6710c001cd0566cf85a8"
+          },
+          "content": {
+            "type": "string",
+            "example": "This is an update regarding the project."
+          },
+          "creationDate": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-11-05T15:02:40.949Z"
+          },
+          "lastUpdatedDate": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-11-05T15:02:40.949Z"
+          }
+        },
+        "required": [
+          "_id",
+          "name",
+          "projectId",
+          "content",
+          "creationDate",
+          "lastUpdatedDate"
+        ]
+      },
+      "ProjectComment": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "60ccf5d1f1d3f14b1c97b3a8"
+          },
+          "authorId": {
+            "type": "string",
+            "example": "60ccf5d1f1d3f14b1c97b3a8"
+          },
+          "projectId": {
+            "type": "string",
+            "example": "690b6710c001cd0566cf85a8"
+          },
+          "content": {
+            "type": "string",
+            "example": "This project is going great!"
+          },
+          "creationDate": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-11-05T15:02:40.949Z"
+          }
+        },
+        "required": [
+          "_id",
+          "authorId",
+          "projectId",
+          "content",
+          "creationDate"
+        ]
+      },
+      "ProjectRating": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "60ccf5d1f1d3f14b1c97b3b9"
+          },
+          "userId": {
+            "type": "string",
+            "example": "690b6710c001cd0566cf85a8"
+          },
+          "projectId": {
+            "type": "string",
+            "example": "690b6710c001cd0566cf85a8"
+          },
+          "value": {
+            "type": "number",
+            "example": 4.5
+          },
+          "creationDate": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-11-05T15:02:40.949Z"
+          }
+        },
+        "required": [
+          "_id",
+          "userId",
+          "projectId",
+          "value",
+          "creationDate"
+        ]
+      }
+    }
+  }
+}
