@@ -1,14 +1,15 @@
 const mongoose = require('mongoose');
 
 // MongoDB connection
-mongoose.connect('mongodb://user-db:27019/users', {});
+mongoose.connect('mongodb://user-db:27017/users', {});
 
 // Create a Mongoose schema and model
 const UserSchema = new mongoose.Schema({
     name: {type: String, required: true, unique: true},
     email: {type: String, required: true, unique: true},
-    password: {type: String, required: true, unique: true},
+    password: {type: String, required: false, unique: true},
     role: {type: String, required: true, enum: ["USER", "ADMIN"], default: "USER"},
+    authType: {type: String, required: true, enum: ["GOOGLE", "BASIC"]},
     createdAt: {type: Date, required: true, default: Date.now},
     lastLoginAt: {type: Date, required: false},
 });

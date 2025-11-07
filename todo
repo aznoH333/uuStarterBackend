@@ -1,0 +1,10 @@
+[ ] auth for posts
+[X] project reviews
+[X] project comment
+[ ] money
+[ ] add project completion % to projects
+[ ] add average user score to projects
+[ ] set fixed time format (iso probably)
+[ ] use auth id from header when creating comments/projects
+[X] nginx gateway
+[ ] some api doc shit

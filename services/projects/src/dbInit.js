@@ -4,8 +4,7 @@ const {PROJECT_STATUS} = require("../../../common/entities/projectEntity");
 // MongoDB connection
 mongoose.connect('mongodb://projects-db:27017/projects', {});
 
-
-// Create a Mongoose schema and model
+// Project
 const ProjectSchema = new mongoose.Schema({
     name: { type: String, required: true },
     description: { type: String, required: true },
@@ -17,7 +16,34 @@ const ProjectSchema = new mongoose.Schema({
     status: { type: String, enum: [...Object.values(PROJECT_STATUS)], required: true },
     categoryId: { type: String, required: false },
 });
-
 const Project = mongoose.model("Project", ProjectSchema);
 
-module.exports = { ProjectSchema, Project }
+// Project update
+const ProjectUpdateSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    projectId: { type: String, required: true },
+    content: { type: String, required: true },
+    creationDate: { type: String, required: true},
+    lastUpdatedDate: { type: Date, required: true },
+});
+const ProjectUpdate = mongoose.model("ProjectUpdate", ProjectUpdateSchema);
+
+// Project comment
+const ProjectCommentSchema = new mongoose.Schema({
+    authorId: { type: String, required: true },
+    projectId: { type: String, required: true },
+    content: { type: String, required: true },
+    creationDate: { type: Date, required: true },
+});
+const ProjectComment = mongoose.model("ProjectComment", ProjectCommentSchema);
+
+// ProjectRating
+const ProjectRatingSchema = new mongoose.Schema({
+    userId: {type: String, required: true},
+    projectId: {type: String, required: true},
+    value: {type: Number, required: true},
+    creationDate: {type: Date, required: true},
+});
+const ProjectRating = mongoose.model("ProjectRating", ProjectRatingSchema);
+
+module.exports = { ProjectSchema, Project, ProjectUpdate, ProjectUpdateSchema, ProjectCommentSchema, ProjectComment, ProjectRatingSchema, ProjectRating }

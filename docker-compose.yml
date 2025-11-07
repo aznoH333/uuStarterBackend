@@ -29,7 +29,7 @@ services:
     volumes:
       - user-db-data:/data/db
     ports:
-      - "27019:27019"
+      - "27019:27017"
 
 
   # logging
@@ -85,6 +85,18 @@ services:
     ports:
       - "5672:5672"   # RabbitMQ messaging
       - "15672:15672" # RabbitMQ management interface
+
+  # gateway
+  api-gateway:
+    build:
+      context: ./apiGateway
+    ports:
+      - "80:80"
+    depends_on:
+      - authentication-service
+      - users-service
+      - projects-service
+      - logging-service
 #  project-service:
 #    build: ./services/project-service
 #    ports:
