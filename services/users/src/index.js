@@ -17,6 +17,7 @@ app.post("/find-by-email", async (req, res) => {
         passwordHash: user.password,
         role: user.role,
         authType: user.authType,
+        userId: user._id,
     });
 });
 app.post('/create-basic', async (req, res) => {

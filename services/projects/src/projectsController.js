@@ -36,11 +36,10 @@ function useProjectsController(app) {
      */
     app.post("/", authenticateJWT, async (req, res) => {
         const user = getUserFromHeader(req);
-        console.debug(user, user.id, user._id);
         const project = ProjectEntity.createNew(
             req.body.name,
             req.body.description,
-            user.id,
+            user.userId,
             req.body.goalAmount,
             req.body.deadLine,
             req.body.categoryId,
