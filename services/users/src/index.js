@@ -2,6 +2,8 @@ const express = require('express');
 const app = express();
 const {User} = require("./dbInit");
 const bcrypt = require('bcrypt');
+require("dotenv").config();
+
 const {sendLog, LOG_TYPE} = require("../../../common/utils/loggingUtils");
 app.use(express.json());
 const SALT_ROUNDS = 12;

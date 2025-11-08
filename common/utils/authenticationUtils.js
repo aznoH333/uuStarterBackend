@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 // auth middleware
 function authenticateJWT(req, res, next) {
     console.debug("started auth");
+    console.debug(process.env.JWT_SECRET);
 
     const h = req.headers.authorization || "";
     const t = h.startsWith("Bearer ") ? h.slice(7) : null;

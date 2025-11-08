@@ -16,6 +16,7 @@ ARG SRC_DIR=./src
 
 COPY ${COMMON_DIR} ./common
 COPY ${SRC_DIR}/../package*.json ./
+COPY ${SRC_DIR}/../.env ./
 RUN npm install
 COPY ${SRC_DIR} ./services/service/src
 

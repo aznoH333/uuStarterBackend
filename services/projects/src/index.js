@@ -1,5 +1,7 @@
 const express = require('express');
 const app = express();
+require("dotenv").config();
+
 
 const {useProjectsController} = require("./projectsController");
 const {useProjectUpdateController} = require("./projectUpdateController");

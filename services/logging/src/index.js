@@ -1,6 +1,8 @@
 const express = require('express');
 const app = express();
 const {Log} = require("./dbInit");
+require("dotenv").config();
+
 const {listenOnChannel, SUPPORTED_CHANNELS} = require("../../../common/utils/rabbitMqUtils");
 
 

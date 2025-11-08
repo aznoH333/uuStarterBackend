@@ -75,6 +75,8 @@ app.use(express.json());
 
 
     app.post("/login-basic", async (req, res) => {
+        console.debug(process.env.JWT_SECRET);
+
         const { email, password } = req.body;
         if (!email || !password) return res.status(400).json({ error: "Missing email or password" });
 
