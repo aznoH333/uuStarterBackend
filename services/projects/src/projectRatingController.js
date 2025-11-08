@@ -2,6 +2,7 @@ const {getProjectById} = require("./projectsController");
 const {ProjectRating} = require("./dbInit");
 const {sendLog, LOG_TYPE} = require("../../../common/utils/loggingUtils");
 const {RESPONSES} = require("../../../common/utils/responseUtils");
+const {authenticateJWT, getUserFromHeader, isOwnerOrAdmin} = require("../../../common/utils/authenticationUtils");
 
 
 /*
@@ -36,11 +37,11 @@ function useProjectRatingController(app) {
 
     /**
      * Add a new project rating
-     * @param userId : String,
      * @param value : Number,
      */
-    app.post("/:projectId/ratings", async (req, res) => {
+    app.post("/:projectId/ratings", authenticateJWT, async (req, res) => {
         const { projectId } = req.params;
+        const user = getUserFromHeader(req);
 
         const project = await getProjectById(projectId);
 
@@ -51,7 +52,7 @@ function useProjectRatingController(app) {
         try {
             const rating = new ProjectRating({
                 projectId,
-                userId: req.body.userId,
+                userId: user.userId,
                 value: req.body.value,
                 creationDate: new Date(),
             });
@@ -82,13 +83,19 @@ function useProjectRatingController(app) {
         res.status(200).json(rating).send();
     });
 
-    app.post("/:projectId/ratings/:ratingId", async (req, res) => {
+    app.post("/:projectId/ratings/:ratingId", authenticateJWT, async (req, res) => {
         const { projectId, ratingId } = req.params;
+        const user = getUserFromHeader(req);
+
 
         const rating = await getProjectRatingById(projectId, ratingId);
 
         if (rating === undefined) {
             return RESPONSES.ENTITY_NOT_FOUND(res);
+        }
+
+        if (!isOwnerOrAdmin(user, rating.userId)) {
+            return RESPONSES.PERMISSION_DENIED(res);
         }
 
         try {
@@ -105,8 +112,9 @@ function useProjectRatingController(app) {
         }
     });
 
-    app.delete("/:projectId/ratings/:ratingId", async (req, res) => {
+    app.delete("/:projectId/ratings/:ratingId", authenticateJWT, async (req, res) => {
         const { projectId, ratingId } = req.params;
+        const user = getUserFromHeader(req);
 
         const rating = await getProjectRatingById(projectId, ratingId);
 
@@ -114,6 +122,9 @@ function useProjectRatingController(app) {
             return RESPONSES.ENTITY_NOT_FOUND(res);
         }
 
+        if (!isOwnerOrAdmin(user, rating.userId)) {
+            return RESPONSES.PERMISSION_DENIED(res);
+        }
 
         try {
             await ProjectRating.deleteOne({"_id": ratingId, "projectId": projectId});

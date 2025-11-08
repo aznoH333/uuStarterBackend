@@ -2,7 +2,7 @@
 const {Project} = require("./dbInit");
 const {sendLog, LOG_TYPE} = require("../../../common/utils/loggingUtils");
 const {ProjectEntity} = require("../../../common/entities/projectEntity");
-const {authenticateJWT, getUserFromHeader, USER_ROLES} = require("../../../common/utils/authenticationUtils");
+const {authenticateJWT, getUserFromHeader, USER_ROLES, isOwnerOrAdmin} = require("../../../common/utils/authenticationUtils");
 const {RESPONSES} = require("../../../common/utils/responseUtils");
 
 function useProjectsController(app) {
@@ -75,7 +75,7 @@ function useProjectsController(app) {
             const project = await Project.findById(projectId);
 
 
-            if (project.ownerId !== user.userId && user.role !== USER_ROLES.ADMIN) {
+            if (!isOwnerOrAdmin(user, project.ownerId)) {
                 return RESPONSES.PERMISSION_DENIED(res);
             }
 

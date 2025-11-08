@@ -4,7 +4,7 @@
 const {getProjectById} = require("./projectsController");
 const {ProjectComment} = require("./dbInit");
 const {sendLog, LOG_TYPE} = require("../../../common/utils/loggingUtils");
-const {authenticateJWT, getUserFromHeader, USER_ROLES} = require("../../../common/utils/authenticationUtils");
+const {authenticateJWT, getUserFromHeader, USER_ROLES, isOwnerOrAdmin} = require("../../../common/utils/authenticationUtils");
 const {RESPONSES} = require("../../../common/utils/responseUtils");
 
 function useProjectCommentController(app) {
@@ -77,9 +77,11 @@ function useProjectCommentController(app) {
         res.status(200).json(comment).send();
     });
 
-    app.post("/:projectId/comments/:commentId", async (req, res) => {
+    /**
+     * update project comment
+     */
+    app.post("/:projectId/comments/:commentId", authenticateJWT, async (req, res) => {
         const { projectId, commentId } = req.params;
-
 
         const comment = await getProjectCommentById(projectId, commentId);
 
@@ -92,7 +94,7 @@ function useProjectCommentController(app) {
 
         try {
 
-            if (comment.authorId !== user.userId) {
+            if (!isOwnerOrAdmin(user, comment.authorId)) {
                 return RESPONSES.PERMISSION_DENIED(res);
             }
 
@@ -122,7 +124,7 @@ function useProjectCommentController(app) {
 
 
         try {
-            if (comment.authorId !== user.userId && user.role !== USER_ROLES.ADMIN) {
+            if (!isOwnerOrAdmin(user, comment.authorId)) {
                 return RESPONSES.PERMISSION_DENIED(res);
             }
 

@@ -2,6 +2,7 @@ const {getProjectById} = require("./projectsController");
 const {ProjectUpdate} = require("./dbInit");
 const {sendLog, LOG_TYPE} = require("../../../common/utils/loggingUtils");
 const {RESPONSES} = require("../../../common/utils/responseUtils");
+const {authenticateJWT, getUserFromHeader, USER_ROLES, isOwnerOrAdmin} = require("../../../common/utils/authenticationUtils");
 
 
 
@@ -32,13 +33,18 @@ function useProjectUpdateController(app) {
      * @param name : String,
      * @param content : String,
      */
-    app.post("/:projectId/posts", async (req, res) => {
+    app.post("/:projectId/posts", authenticateJWT, async (req, res) => {
         const { projectId } = req.params;
+        const user = getUserFromHeader(req);
 
         const project = await getProjectById(projectId);
 
         if (!project) {
             return RESPONSES.ENTITY_NOT_FOUND(res);
+        }
+
+        if (!isOwnerOrAdmin(user, project.ownerId)) {
+            return RESPONSES.PERMISSION_DENIED(res);
         }
 
         try {
@@ -76,14 +82,23 @@ function useProjectUpdateController(app) {
         res.status(200).json(post).send();
     });
 
-    app.post("/:projectId/posts/:postId", async (req, res) => {
+    /**
+     * Update post
+     */
+    app.post("/:projectId/posts/:postId", authenticateJWT, async (req, res) => {
         const { projectId, postId } = req.params;
-
+        const user = getUserFromHeader(req);
 
         const post = await getProjectPostById(projectId, postId);
 
         if (post === undefined) {
             return RESPONSES.ENTITY_NOT_FOUND(res);
+        }
+
+        const project = await getProjectById(projectId);
+
+        if (!isOwnerOrAdmin(user, project.ownerId)) {
+            return RESPONSES.PERMISSION_DENIED(res);
         }
 
         try {
@@ -102,13 +117,20 @@ function useProjectUpdateController(app) {
         }
     });
 
-    app.delete("/:projectId/posts/:postId", async (req, res) => {
+    app.delete("/:projectId/posts/:postId", authenticateJWT, async (req, res) => {
         const { projectId, postId } = req.params;
+        const user = getUserFromHeader(req);
 
         const post = await getProjectPostById(projectId, postId);
 
         if (!post) {
             return RESPONSES.ENTITY_NOT_FOUND(res);
+        }
+
+        const project = await getProjectById(projectId);
+
+        if (!isOwnerOrAdmin(user, project.ownerId)) {
+            return RESPONSES.PERMISSION_DENIED(res);
         }
 
 

@@ -28,9 +28,16 @@ function getUserFromHeader(req) {
     }
 }
 
+
+function isOwnerOrAdmin(user, ownerId) {
+    return user.userId === ownerId || user.role === USER_ROLES.ADMIN;
+}
+
 const USER_ROLES = {
     USER: "user",
     ADMIN: "admin",
 }
 
-module.exports = { authenticateJWT, requireRole, getUserFromHeader, USER_ROLES }
+
+
+module.exports = { authenticateJWT, requireRole, getUserFromHeader, isOwnerOrAdmin, USER_ROLES }
