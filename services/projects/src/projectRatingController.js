@@ -1,6 +1,7 @@
 const {getProjectById} = require("./projectsController");
 const {ProjectRating} = require("./dbInit");
 const {sendLog, LOG_TYPE} = require("../../../common/utils/loggingUtils");
+const {RESPONSES} = require("../../../common/utils/responseUtils");
 
 
 /*
@@ -23,7 +24,7 @@ function useProjectRatingController(app) {
 
 
         if (!project) {
-            res.status(400).send();
+            return RESPONSES.ENTITY_NOT_FOUND(res);
         }
 
         const projectRatings = await ProjectRating.find({ "projectId": projectId});
@@ -44,7 +45,7 @@ function useProjectRatingController(app) {
         const project = await getProjectById(projectId);
 
         if (!project) {
-            res.status(400).send();
+            return RESPONSES.ENTITY_NOT_FOUND(res);
         }
 
         try {
@@ -62,7 +63,7 @@ function useProjectRatingController(app) {
             res.status(200).send();
         }catch(e) {
             sendLog("Failed to create project rating : " + req.body, LOG_TYPE.ERROR);
-            res.status(400).send();
+            return RESPONSES.SAVE_FAILED(res);
         }
     });
 
@@ -72,10 +73,10 @@ function useProjectRatingController(app) {
     app.get("/:projectId/ratings/:ratingId", async (req, res) => {
         const { projectId, ratingId } = req.params;
 
-        const rating = await getProjectRatingById(projectId, postId);
+        const rating = await getProjectRatingById(projectId, ratingId);
 
         if (!rating) {
-            res.status(400).send();
+            return RESPONSES.ENTITY_NOT_FOUND(res);
         }
 
         res.status(200).json(rating).send();
@@ -87,7 +88,7 @@ function useProjectRatingController(app) {
         const rating = await getProjectRatingById(projectId, ratingId);
 
         if (rating === undefined) {
-            res.status(400).send();
+            return RESPONSES.ENTITY_NOT_FOUND(res);
         }
 
         try {
@@ -100,7 +101,7 @@ function useProjectRatingController(app) {
             res.status(200).send();
         }catch(e) {
             sendLog("Failed to update rating " + e, LOG_TYPE.ERROR);
-            res.status(400).send();
+            return RESPONSES.SAVE_FAILED(res);
         }
     });
 
@@ -110,7 +111,7 @@ function useProjectRatingController(app) {
         const rating = await getProjectRatingById(projectId, ratingId);
 
         if (!rating) {
-            res.status(400).send();
+            return RESPONSES.ENTITY_NOT_FOUND(res);
         }
 
 
@@ -118,7 +119,7 @@ function useProjectRatingController(app) {
             await ProjectRating.deleteOne({"_id": ratingId, "projectId": projectId});
             res.status(200).send();
         }catch(e) {
-            res.status(400).send();
+            return RESPONSES.SAVE_FAILED(res);
         }
     });
 }

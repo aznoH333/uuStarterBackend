@@ -1,6 +1,7 @@
 const {getProjectById} = require("./projectsController");
 const {ProjectUpdate} = require("./dbInit");
 const {sendLog, LOG_TYPE} = require("../../../common/utils/loggingUtils");
+const {RESPONSES} = require("../../../common/utils/responseUtils");
 
 
 
@@ -16,7 +17,7 @@ function useProjectUpdateController(app) {
 
 
         if (!project) {
-            res.status(400).send();
+            return RESPONSES.ENTITY_NOT_FOUND(res);
         }
 
         const projectUpdates = await ProjectUpdate.find({ "projectId": projectId});
@@ -37,7 +38,7 @@ function useProjectUpdateController(app) {
         const project = await getProjectById(projectId);
 
         if (!project) {
-            res.status(400).send();
+            return RESPONSES.ENTITY_NOT_FOUND(res);
         }
 
         try {
@@ -56,7 +57,7 @@ function useProjectUpdateController(app) {
             res.status(200).send();
         }catch(e) {
             sendLog("Failed to create project update : " + req.body, LOG_TYPE.ERROR);
-            res.status(400).send();
+            return RESPONSES.SAVE_FAILED(res);
         }
     });
 
@@ -69,7 +70,7 @@ function useProjectUpdateController(app) {
         const post = await getProjectPostById(projectId, postId);
 
         if (!post) {
-            res.status(400).send();
+            return RESPONSES.ENTITY_NOT_FOUND(res);
         }
 
         res.status(200).json(post).send();
@@ -82,7 +83,7 @@ function useProjectUpdateController(app) {
         const post = await getProjectPostById(projectId, postId);
 
         if (post === undefined) {
-            res.status(400).send();
+            return RESPONSES.ENTITY_NOT_FOUND(res);
         }
 
         try {
@@ -97,7 +98,7 @@ function useProjectUpdateController(app) {
             res.status(200).send();
         }catch(e) {
             sendLog("Failed to update post " + e, LOG_TYPE.ERROR);
-            res.status(400).send();
+            return RESPONSES.SAVE_FAILED(res);
         }
     });
 
@@ -107,7 +108,7 @@ function useProjectUpdateController(app) {
         const post = await getProjectPostById(projectId, postId);
 
         if (!post) {
-            res.status(400).send();
+            return RESPONSES.ENTITY_NOT_FOUND(res);
         }
 
 
@@ -115,7 +116,7 @@ function useProjectUpdateController(app) {
             await ProjectUpdate.deleteOne({"_id": postId, "projectId": projectId});
             res.status(200).send();
         }catch(e) {
-            res.status(400).send();
+            return RESPONSES.SAVE_FAILED(res);
         }
     });
 }

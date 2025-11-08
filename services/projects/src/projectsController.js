@@ -2,7 +2,8 @@
 const {Project} = require("./dbInit");
 const {sendLog, LOG_TYPE} = require("../../../common/utils/loggingUtils");
 const {ProjectEntity} = require("../../../common/entities/projectEntity");
-const {authenticateJWT, getUserFromHeader} = require("../../../common/utils/authenticationUtils");
+const {authenticateJWT, getUserFromHeader, USER_ROLES} = require("../../../common/utils/authenticationUtils");
+const {RESPONSES} = require("../../../common/utils/responseUtils");
 
 function useProjectsController(app) {
     // get all projects
@@ -20,7 +21,7 @@ function useProjectsController(app) {
             res.status(200).json(project);
 
         }catch (e) {
-            res.status(400);
+            return RESPONSES.ENTITY_NOT_FOUND(res);
         }
     });
 
@@ -52,7 +53,7 @@ function useProjectsController(app) {
             res.status(200).send();
         }catch (e) {
             sendLog("Failed to create a project : " + project + "\n Failed with error : " + e, LOG_TYPE.ERROR);
-            res.status(400).send();
+            return RESPONSES.SAVE_FAILED(res);
 
         }
     });
@@ -66,11 +67,17 @@ function useProjectsController(app) {
      * @param categoryId : String | undefined - category id (optional)
      * @param status : String - supported values ["PendingApproval", "Approved", "Rejected", "Closed"]
      */
-    app.post("/:projectId", async (req, res)=> {
+    app.post("/:projectId", authenticateJWT, async (req, res)=> {
         const { projectId } = req.params;
+        const user = getUserFromHeader(req);
 
         try {
             const project = await Project.findById(projectId);
+
+
+            if (project.ownerId !== user.userId && user.role !== USER_ROLES.ADMIN) {
+                return RESPONSES.PERMISSION_DENIED(res);
+            }
 
             project.name = req.body.name;
             project.description = req.body.description;
@@ -83,10 +90,9 @@ function useProjectsController(app) {
             await project.save();
             sendLog("Updated project : " + project._id.toString(), LOG_TYPE.INFO);
             res.status(200).send();
-
         }catch (e) {
-            sendLog("Failed to find project : " + projectId + "\n Failed with error : " + e, LOG_TYPE.ERROR);
-            res.status(400).send();
+            sendLog("Failed to save project : " + projectId + "\n Failed with error : " + e, LOG_TYPE.ERROR);
+            return RESPONSES.SAVE_FAILED(res);
         }
     });
 

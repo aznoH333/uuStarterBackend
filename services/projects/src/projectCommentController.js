@@ -4,6 +4,8 @@
 const {getProjectById} = require("./projectsController");
 const {ProjectComment} = require("./dbInit");
 const {sendLog, LOG_TYPE} = require("../../../common/utils/loggingUtils");
+const {authenticateJWT, getUserFromHeader, USER_ROLES} = require("../../../common/utils/authenticationUtils");
+const {RESPONSES} = require("../../../common/utils/responseUtils");
 
 function useProjectCommentController(app) {
     /**
@@ -16,7 +18,7 @@ function useProjectCommentController(app) {
 
 
         if (!project) {
-            res.status(400).send();
+            return RESPONSES.ENTITY_NOT_FOUND(res);
         }
 
         const projectComments = await ProjectComment.find({ "projectId": projectId});
@@ -28,22 +30,23 @@ function useProjectCommentController(app) {
 
     /**
      * Add a new project comment
-     * @param authorId : String,
      * @param content : String,
      */
-    app.post("/:projectId/comments", async (req, res) => {
+    app.post("/:projectId/comments", authenticateJWT, async (req, res) => {
         const { projectId } = req.params;
 
         const project = await getProjectById(projectId);
 
         if (!project) {
-            res.status(400).send();
+            return RESPONSES.ENTITY_NOT_FOUND(res);
         }
+
+        const user = getUserFromHeader(req);
 
         try {
             const comment = new ProjectComment({
                 projectId,
-                authorId: req.body.authorId,
+                authorId: user.userId,
                 content: req.body.content,
                 creationDate: new Date(),
             });
@@ -55,7 +58,7 @@ function useProjectCommentController(app) {
             res.status(200).send();
         }catch(e) {
             sendLog("Failed to create project comment : " + req.body, LOG_TYPE.ERROR);
-            res.status(400).send();
+            return RESPONSES.SAVE_FAILED(res);
         }
     });
 
@@ -65,10 +68,10 @@ function useProjectCommentController(app) {
     app.get("/:projectId/comments/:commentId", async (req, res) => {
         const { projectId, commentId } = req.params;
 
-        const comment = await getProjectCommentById(projectId, postId);
+        const comment = await getProjectCommentById(projectId, commentId);
 
         if (!comment) {
-            res.status(400).send();
+            return RESPONSES.ENTITY_NOT_FOUND(res);
         }
 
         res.status(200).json(comment).send();
@@ -81,10 +84,18 @@ function useProjectCommentController(app) {
         const comment = await getProjectCommentById(projectId, commentId);
 
         if (comment === undefined) {
-            res.status(400).send();
+            return RESPONSES.ENTITY_NOT_FOUND(res);
         }
 
+        const user = getUserFromHeader(req);
+
+
         try {
+
+            if (comment.authorId !== user.userId) {
+                return RESPONSES.PERMISSION_DENIED(res);
+            }
+
             comment.content = req.body.content;
 
             await comment.save();
@@ -94,7 +105,7 @@ function useProjectCommentController(app) {
             res.status(200).send();
         }catch(e) {
             sendLog("Failed to update comment " + e, LOG_TYPE.ERROR);
-            res.status(400).send();
+            return RESPONSES.SAVE_FAILED(res);
         }
     });
 
@@ -104,15 +115,22 @@ function useProjectCommentController(app) {
         const comment = await getProjectCommentById(projectId, commentId);
 
         if (!comment) {
-            res.status(400).send();
+            return RESPONSES.ENTITY_NOT_FOUND(res);
         }
+
+        const user = getUserFromHeader(req);
 
 
         try {
+            if (comment.authorId !== user.userId && user.role !== USER_ROLES.ADMIN) {
+                return RESPONSES.PERMISSION_DENIED(res);
+            }
+
+
             await ProjectComment.deleteOne({"_id": commentId, "projectId": projectId});
             res.status(200).send();
         }catch(e) {
-            res.status(400).send();
+            RESPONSES.SAVE_FAILED(res);
         }
     });
 }
