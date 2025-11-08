@@ -10,6 +10,7 @@ const bcrypt = require("bcrypt");
 require("dotenv").config();
 const express = require("express");
 const jwt = require("jsonwebtoken");
+const {authenticateJWT, requireRole} = require("../../../common/utils/authenticationUtils");
 const app = express();
 app.use(express.json());
 
@@ -65,28 +66,14 @@ app.use(express.json());
         if (!session?.user) return res.status(401).json({ error: "Not signed in" });
 
         const token = jwt.sign(
-            { email: session.user.email, role: session.user.role },
+            { email: session.user.email, role: session.user.role, userId: session.user.id },
             process.env.JWT_SECRET,
             { expiresIn: process.env.JWT_EXPIRES || "15m" }
         );
         res.json({ token, expiresIn: process.env.JWT_EXPIRES || "15m", email: session.user.email, role: session.user.role });
     });
 
-    // auth middleware
-    function authenticateJWT(req, res, next) {
-        const h = req.headers.authorization || "";
-        const t = h.startsWith("Bearer ") ? h.slice(7) : null;
-        if (!t) return res.status(401).json({ error: "Missing token" });
-        try { req.user = jwt.verify(t, process.env.JWT_SECRET); next(); }
-        catch { return res.status(401).json({ error: "Invalid or expired token" }); }
-    }
-    function requireRole(...allowed) {
-        return (req, res, next) => {
-            const role = req.user?.role || "user";
-            if (!allowed.includes(role)) return res.status(403).json({ error: "Forbidden" });
-            next();
-        };
-    }
+
     app.post("/login-basic", async (req, res) => {
         const { email, password } = req.body;
         if (!email || !password) return res.status(400).json({ error: "Missing email or password" });
@@ -107,7 +94,7 @@ app.use(express.json());
             if (!match) return res.status(401).json({ error: "Invalid credentials" });
 
             const token = jwt.sign(
-                { email: user.email, role: user.role },
+                { email: user.email, role: user.role, userId: user.id },
                 process.env.JWT_SECRET,
                 { expiresIn: process.env.JWT_EXPIRES || "15m" }
             );

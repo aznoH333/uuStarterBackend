@@ -2,6 +2,7 @@
 const {Project} = require("./dbInit");
 const {sendLog, LOG_TYPE} = require("../../../common/utils/loggingUtils");
 const {ProjectEntity} = require("../../../common/entities/projectEntity");
+const {authenticateJWT, getUserFromHeader} = require("../../../common/utils/authenticationUtils");
 
 function useProjectsController(app) {
     // get all projects
@@ -23,23 +24,23 @@ function useProjectsController(app) {
         }
     });
 
+
     /**
      * Creates a new project
      * @param name : String
      * @param description : String
-     * @param ownerId : String - id of owner user
      * @param goalAmount : Number - number in $?
      * @param deadLine : Date
      * @param categoryId : String | undefined - category id (optional)
      * @returns {ProjectEntity}
      */
-    app.post("/", async (req, res) => {
-        // TODO check auth permissions
-
+    app.post("/", authenticateJWT, async (req, res) => {
+        const user = getUserFromHeader(req);
+        console.debug(user, user.id, user._id);
         const project = ProjectEntity.createNew(
             req.body.name,
             req.body.description,
-            req.body.ownerId,
+            user.id,
             req.body.goalAmount,
             req.body.deadLine,
             req.body.categoryId,
