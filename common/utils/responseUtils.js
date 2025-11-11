@@ -1,9 +1,9 @@
 const RESPONSES = {
     ENTITY_NOT_FOUND: (res)=> {
-        res.status(400).json({error: "Not found"}).send();
+        res.status(404).json({error: "Not found"}).send();
     },
     PERMISSION_DENIED: (res) => {
-        res.status(400).json({error: "Permission denied"}).send();
+        res.status(401).json({error: "Permission denied"}).send();
     },
     SAVE_FAILED: (res) => {
         res.status(400).json({error: "Failed to save entity"}).send();

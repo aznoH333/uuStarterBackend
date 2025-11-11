@@ -4,6 +4,8 @@
 [ ] money
 [ ] add project completion % to projects
 [ ] add average user score to projects
+[ ] get users by id
+[ ] get users that support a project
 [ ] set fixed time format (iso probably)
 [x] use auth id from header when creating comments/projects
 [X] nginx gateway

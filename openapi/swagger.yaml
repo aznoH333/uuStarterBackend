@@ -1,0 +1,712 @@
+swagger: "2.0"
+info:
+  title: uuStarter Backend API (development)
+  description: Provides backend functionality for to the uuStarter app.
+  version: 1.0.0
+
+host: localhost:80
+schemes:
+  - http
+
+securityDefinitions:
+  bearer:
+    type: apiKey
+    name: Authorization
+    in: header
+    description: >-
+      Enter the token with the `Bearer ` prefix, e.g. "Bearer abcde12345".
+
+security:
+  - bearer: []
+
+
+definitions:
+  Project:
+    type: object
+    properties:
+      _id:
+        type: string
+        description: Unique identifier for the project
+        example: "690b6710c001cd0566cf85a8"
+      name:
+        type: string
+        description: Name of the project
+      description:
+        type: string
+        description: Description of the project
+      ownerId:
+        type: string
+        description: ID of the project owner
+      creationDate:
+        type: string
+        format: date-time
+        description: Date and time when the project was created
+        example: "2025-11-05T15:02:40.949Z"
+      lastUpdatedDate:
+        type: string
+        format: date-time
+        description: Date and time when the project was last updated
+        example: "2025-11-05T15:02:40.949Z"
+      goalAmount:
+        type: integer
+        description: The target amount for the project
+        example: 20
+      deadLine:
+        type: string
+        format: date-time
+        description: Deadline for the project
+        example: "2025-11-05T14:51:54.670Z"
+      status:
+        type: string
+        description: Current status of the project
+        enum: [PendingApproval, Approved, Rejected, Closed]
+        example: "PendingApproval"
+  ProjectUpdate:
+    type: object
+    properties:
+      _id:
+        type: string
+        description: Unique identifier for the update.
+      name:
+        type: string
+        description: Name of the project update.
+      projectId:
+        type: string
+        description: Associated project identifier.
+      content:
+        type: string
+        description: Content of the object.
+      creationDate:
+        type: string
+        format: date-time
+        description: Date when the object was created.
+      lastUpdatedDate:
+        type: string
+        format: date-time
+        description: Date when the object was last updated.
+  ProjectComment:
+    type: object
+    properties:
+      _id:
+        type: string
+        description: Unique identifier for the project comment.
+      authorId:
+        type: string
+        description: Identifier of the comment author.
+      projectId:
+        type: string
+        description: Identifier of the associated project.
+      content:
+        type: string
+        description: Content of the comment.
+      creationDate:
+        type: string
+        format: date-time
+        description: Date when the comment was created.
+  ProjectRating:
+    type: object
+    properties:
+      _id:
+        type: string
+        description: Unique identifier for the project rating.
+      userId:
+        type: string
+        description: Identifier of the user who rated the project.
+      projectId:
+        type: string
+        description: Identifier of the associated project.
+      value:
+        type: integer
+        format: int32
+        description: Rating value (e.g., from 1 to 5).
+      creationDate:
+        type: string
+        format: date-time
+        description: Date when the rating was created.
+
+
+
+paths:
+  # Project base
+  /projects:
+    get:
+      summary: Returns a list of all projects
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Project"
+    post:
+      summary: Adds a new project
+      security:
+        - bearer: [ ]
+      parameters:
+        - name: project
+          in: body
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              description:
+                type: string
+              goalAmount:
+                type: number
+              deadLine:
+                type: string
+                example: 2025-11-09T13:50:39.490Z
+              category:
+                type: string
+                required: false
+
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+        401:
+          description: Unauthorized
+        400:
+          description: Failed to create
+  /projects/{projectId}:
+    get:
+      summary: "Returns a specific project"
+      produces:
+        - application/json
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/Project"
+    post:
+      summary: "Updates a specific project"
+      security:
+        - bearer: [ ]
+      produces:
+        - application/json
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          type: string
+        - name: project
+          in: body
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              description:
+                type: string
+              goalAmount:
+                type: number
+              deadLine:
+                type: string
+                example: 2025-11-09T13:50:39.490Z
+              category:
+                type: string
+                required: false
+      responses:
+        200:
+          description: OK
+        401:
+          description: Unauthorized
+        400:
+          description: Failed to update
+
+  # Project update
+  /projects/{projectId}/posts:
+    get:
+      summary: Get all project posts associated with a project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          type: string
+          description: The unique identifier of the project.
+      responses:
+        200:
+          description: A list of project posts
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ProjectUpdate'
+        404:
+          description: Project not found
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+
+    post:
+      summary: Add a new project post
+      security:
+        - bearer: [ ]
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          type: string
+          description: The unique identifier of the project.
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                description: Name of the project update.
+              content:
+                type: string
+                description: Content of the project update.
+      responses:
+        200:
+          description: Project post created successfully
+        404:
+          description: Project not found
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+        401:
+          description: Permission denied
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+  /projects/{projectId}/posts/{postId}:
+    get:
+      summary: Get a specific project post
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          type: string
+          description: The unique identifier of the project.
+        - name: postId
+          in: path
+          required: true
+          type: string
+          description: The unique identifier of the post.
+      responses:
+        200:
+          description: The project post
+          schema:
+            $ref: '#/definitions/ProjectUpdate'
+        404:
+          description: Post not found
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+
+    post:
+      summary: Update a specific project post
+      security:
+        - bearer: [ ]
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          type: string
+          description: The unique identifier of the project.
+        - name: postId
+          in: path
+          required: true
+          type: string
+          description: The unique identifier of the post.
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                description: Updated name of the project post.
+              content:
+                type: string
+                description: Updated content of the project post.
+      responses:
+        200:
+          description: Project post updated successfully
+        404:
+          description: Post not found
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+        401:
+          description: Permission denied
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+
+    delete:
+      summary: Delete a specific project post
+      security:
+        - bearer: [ ]
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          type: string
+          description: The unique identifier of the project.
+        - name: postId
+          in: path
+          required: true
+          type: string
+          description: The unique identifier of the post.
+      responses:
+        200:
+          description: Post deleted successfully
+        404:
+          description: Post not found
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+        401:
+          description: Permission denied
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+
+  # Project rating
+  /projects/{projectId}/ratings:
+    get:
+      summary: Get all project ratings associated with a project
+      responses:
+        200:
+          description: A list of project ratings
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ProjectRating'
+        404:
+          description: Project not found
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+    post:
+      summary: Add a new project rating
+      security:
+        - bearer: [ ]
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          type: string
+          description: The unique identifier of the project.
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              value:
+                type: integer
+                format: int32
+                description: Rating value (e.g., from 1 to 5).
+      responses:
+        200:
+          description: Rating created successfully
+        404:
+          description: Project not found
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+        400:
+          description: Failed to save rating
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+  /projects/{projectId}/ratings/{ratingId}:
+    get:
+      summary: Get a specific project rating
+      security:
+        - bearer: [ ]
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          type: string
+          description: The unique identifier of the project.
+        - name: ratingId
+          in: path
+          required: true
+          type: string
+          description: The unique identifier of the rating.
+      responses:
+        200:
+          description: The project rating
+          schema:
+            $ref: '#/definitions/ProjectRating'
+        404:
+          description: Rating not found
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+
+    post:
+      summary: Update a specific project rating
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          type: string
+          description: The unique identifier of the project.
+        - name: ratingId
+          in: path
+          required: true
+          type: string
+          description: The unique identifier of the rating.
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              value:
+                type: integer
+                format: int32
+                description: New rating value (e.g., from 1 to 5).
+      responses:
+        200:
+          description: Rating updated successfully
+        404:
+          description: Rating not found
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+        401:
+          description: Permission denied
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+
+    delete:
+      summary: Delete a specific project rating
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          type: string
+          description: The unique identifier of the project.
+        - name: ratingId
+          in: path
+          required: true
+          type: string
+          description: The unique identifier of the rating.
+      responses:
+        200:
+          description: Rating deleted successfully
+        404:
+          description: Rating not found
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+        401:
+          description: Permission denied
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+
+  # Project comment
+  /projects/{projectId}/comments:
+    get:
+      summary: Get all project comments associated with a project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          type: string
+          description: The unique identifier of the project.
+      responses:
+        200:
+          description: A list of project comments
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ProjectComment'
+        404:
+          description: Project not found
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+
+    post:
+      summary: Add a new project comment
+      security:
+        - bearer: [ ]
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          type: string
+          description: The unique identifier of the project.
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              content:
+                type: string
+                description: Content of the project comment.
+      responses:
+        200:
+          description: Project comment created successfully
+        404:
+          description: Project not found
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+        400:
+          description: Failed to create comment
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+  /{projectId}/comments/{commentId}:
+    get:
+      summary: Get a specific project comment
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          type: string
+          description: The unique identifier of the project.
+        - name: commentId
+          in: path
+          required: true
+          type: string
+          description: The unique identifier of the comment.
+      responses:
+        200:
+          description: The project comment
+          schema:
+            $ref: '#/definitions/ProjectComment'
+        404:
+          description: Comment not found
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+
+    post:
+      summary: Update a specific project comment
+      security:
+        - bearer: [ ]
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          type: string
+          description: The unique identifier of the project.
+        - name: commentId
+          in: path
+          required: true
+          type: string
+          description: The unique identifier of the comment.
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              content:
+                type: string
+                description: Updated content of the project comment.
+      responses:
+        200:
+          description: Project comment updated successfully
+        404:
+          description: Comment not found
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+        401:
+          description: Permission denied
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+
+    delete:
+      summary: Delete a specific project comment
+      security:
+        - bearer: [ ]
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          type: string
+          description: The unique identifier of the project.
+        - name: commentId
+          in: path
+          required: true
+          type: string
+          description: The unique identifier of the comment.
+      responses:
+        200:
+          description: Comment deleted successfully
+        404:
+          description: Comment not found
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+        401:
+          description: Permission denied
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
