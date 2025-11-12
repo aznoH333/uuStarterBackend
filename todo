@@ -9,4 +9,6 @@
 [ ] set fixed time format (iso probably)
 [x] use auth id from header when creating comments/projects
 [X] nginx gateway
-[ ] some api doc shit
+[X] some api doc shit
+[ ] find user by email shouldn't send the password hash to frontend
+[ ] documentation
