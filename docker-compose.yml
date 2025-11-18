@@ -84,6 +84,28 @@ services:
     ports:
       - "27018:27017"
 
+  # categories
+  categories-service:
+    depends_on:
+      - rabbitmq
+      - categories-db
+    build:
+      context: .
+      args:
+        COMMON_DIR: ./common
+        SRC_DIR: ./services/categories/src
+      dockerfile: ./services/categories/Dockerfile
+    ports:
+      - "3005:3000"
+    environment:
+      - DATABASE_URI=mongodb://categories-db:27018/categories
+
+  categories-db:
+    image: mongo
+    volumes:
+      - categories-db-data:/data/db
+    ports:
+      - "27020:27017"
 
   # rabbit
   rabbitmq:
@@ -117,3 +139,4 @@ volumes:
   logging-db-data:
   user-db-data:
   projects-db-data:
+  categories-db-data:
