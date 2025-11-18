@@ -96,6 +96,30 @@ function useProjectsController(app) {
         }
     });
 
+    /**
+     * "Deletes" project (sets status to "CLOSED")
+     * @param projectId : String
+     */
+    app.delete("/:projectId", async (req, res) => {
+        const { projectId } = req.params;
+        const user = getUserFromHeader(req);
+
+        try {
+            if (!isOwnerOrAdmin(user, project.ownerId)) {
+                return RESPONSES.PERMISSION_DENIED(res);
+            }
+            const project = await Project.findByIdAndDelete(projectId);
+            project.status = "CLOSED"
+            project.save()
+            sendLog("Deleted project : " + project._id.toString(), LOG_TYPE.INFO);
+            res.status(200).json(project);
+
+        }catch (e) {
+            sendLog("Failed to delete a project : " + projectId + "\n Failed with error : " + e, LOG_TYPE.ERROR);
+            return RESPONSES.ENTITY_NOT_FOUND(res);
+        }
+    });
+
 }
 
 /**
