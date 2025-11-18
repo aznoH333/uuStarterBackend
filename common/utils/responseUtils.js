@@ -7,6 +7,9 @@ const RESPONSES = {
     },
     SAVE_FAILED: (res) => {
         res.status(400).json({error: "Failed to save entity"}).send();
+    },
+    ENTITY_CONFLICT: (res) => {
+        return res.status(409).json({error: "Entity conflict"});
     }
 }
 
