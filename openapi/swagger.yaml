@@ -20,7 +20,7 @@ securityDefinitions:
       Use the official swagger ui instead. It works there
 
 security:
-  - bearer: []
+  - bearer: [ ]
 
 
 definitions:
@@ -87,7 +87,7 @@ definitions:
       status:
         type: string
         description: Current status of the project
-        enum: [PendingApproval, Approved, Rejected, Closed]
+        enum: [ PendingApproval, Approved, Rejected, Closed ]
         example: "PendingApproval"
   ProjectUpdate:
     type: object
@@ -151,8 +151,16 @@ definitions:
         type: string
         format: date-time
         description: Date when the rating was created.
-
-
+  Category:
+    type: object
+    properties:
+      _id:
+        type: string
+        description: Unique identifier for the category
+        example: "690b6710c001cd0566cf85a8"
+      name:
+        type: string
+        description: Name of the category
 
 paths:
   # Users
@@ -468,6 +476,38 @@ paths:
           description: Unauthorized
         400:
           description: Failed to update
+    delete:
+      summary: Delete a specific project
+      security:
+        - bearer: [ ]
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          type: string
+          description: The unique identifier of the project.
+        - name: projectId
+          in: path
+          required: true
+          type: string
+          description: The unique identifier of the project.
+      responses:
+        200:
+          description: Project deleted successfully
+        404:
+          description: Project not found
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+        401:
+          description: Permission denied
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
 
   # Project update
   /projects/{projectId}/posts:
@@ -604,7 +644,6 @@ paths:
             properties:
               message:
                 type: string
-
     delete:
       summary: Delete a specific project post
       security:
@@ -944,6 +983,116 @@ paths:
           description: Comment deleted successfully
         404:
           description: Comment not found
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+        401:
+          description: Permission denied
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+
+  # Category
+  /categories:
+    get:
+      summary: Returns a list of all categories
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Category"
+    post:
+      summary: Adds a new category
+      security:
+        - bearer: [ ]
+      parameters:
+        - name: category
+          in: body
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                required: true
+
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+        401:
+          description: Unauthorized
+        400:
+          description: Failed to create
+  /categories/{categoryId}:
+    get:
+      summary: "Returns a specific category"
+      produces:
+        - application/json
+      parameters:
+        - name: categoryId
+          in: path
+          required: true
+          type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/Category"
+    post:
+      summary: "Updates a specific category"
+      security:
+        - bearer: [ ]
+      produces:
+        - application/json
+      parameters:
+        - name: categoryId
+          in: path
+          required: true
+          type: string
+        - name: category
+          in: body
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                required: true
+      responses:
+        200:
+          description: OK
+        401:
+          description: Unauthorized
+        400:
+          description: Failed to update
+    delete:
+      summary: Delete a specific category
+      security:
+        - bearer: [ ]
+      parameters:
+        - name: categoryId
+          in: path
+          required: true
+          type: string
+          description: The unique identifier of the category.
+        - name: categoryId
+          in: path
+          required: true
+          type: string
+          description: The unique identifier of the category.
+      responses:
+        200:
+          description: Category deleted successfully
+        404:
+          description: Category not found
           schema:
             type: object
             properties:
