@@ -34,7 +34,7 @@ function useUsersController(app) {
      * @param emial : String
      * @param password : String
      */
-    app.post("/:userId", authenticateJWT, async (req, res)=> {
+   app.put("/:userId", authenticateJWT, async (req, res)=> {
         // TODO: Do some permissions for this shit xd
         const { userId } = req.params;
         const user = getUserFromHeader(req);
