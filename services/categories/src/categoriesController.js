@@ -3,7 +3,6 @@ const {sendLog, LOG_TYPE} = require("../../../common/utils/loggingUtils");
 const {
     authenticateJWT,
     getUserFromHeader,
-    USER_ROLES,
     isOwnerOrAdmin
 } = require("../../../common/utils/authenticationUtils");
 const {RESPONSES} = require("../../../common/utils/responseUtils");

@@ -107,7 +107,30 @@ services:
     ports:
       - "27020:27017"
 
-  # rabbit
+  # donations
+  donations-service:
+    depends_on:
+      - rabbitmq
+      - donations-db
+    build:
+      context: .
+      args:
+        COMMON_DIR: ./common
+        SRC_DIR: ./services/donations/src
+      dockerfile: ./services/donations/Dockerfile
+    ports:
+      - "3006:3000"
+    environment:
+      - DATABASE_URI=mongodb://donations-db:27018/donations
+
+  donations-db:
+    image: mongo
+    volumes:
+      - donations-db-data:/data/db
+    ports:
+      - "27021:27017"
+
+      # rabbit
   rabbitmq:
     image: rabbitmq:3-management
     ports:
@@ -140,3 +163,4 @@ volumes:
   user-db-data:
   projects-db-data:
   categories-db-data:
+  donations-db-data:
