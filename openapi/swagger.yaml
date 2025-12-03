@@ -161,6 +161,29 @@ definitions:
       name:
         type: string
         description: Name of the category
+  Donation:
+    type: object
+    properties:
+      _id:
+        type: string
+        description: Unique identifier for the donation.
+      userId:
+        type: string
+        description: Identifier of the user who donated the project.
+      projectId:
+        type: string
+        description: Identifier of the associated project.
+      amount:
+        type: integer
+        format: int32
+        description: Amout of the donation in $.
+      creationDate:
+        type: string
+        format: date-time
+        description: Date when the rating was created.
+      paymentStatus:
+        type: string
+        description: Status is enum "Paid","Unsettled","Failed",
 
 paths:
   # Users
@@ -1093,6 +1116,127 @@ paths:
           description: Category deleted successfully
         404:
           description: Category not found
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+        401:
+          description: Permission denied
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+  # Donation
+  /donations:
+    get:
+      summary: Returns a list of all donations
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Donation"
+    post:
+      summary: Adds a new donation
+      security:
+        - bearer: [ ]
+      parameters:
+        - name: donationId
+          in: body
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                required: true
+        - name: amount
+          in: body
+          schema:
+            type: object
+            properties:
+              name:
+                type: number
+                required: true
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+        401:
+          description: Unauthorized
+        400:
+          description: Failed to create
+  /donations/{categoryId}:
+    get:
+      summary: "Returns a specific donation"
+      produces:
+        - application/json
+      parameters:
+        - name: donationId
+          in: path
+          required: true
+          type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/Donation"
+    put:
+      summary: "Updates a specific donation"
+      security:
+        - bearer: [ ]
+      produces:
+        - application/json
+      parameters:
+        - name: donationId
+          in: path
+          required: true
+          type: string
+        - name: paymentStatus
+          description: Status is enum "Paid","Unsettled","Failed",
+          in: body
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                required: true
+      responses:
+        200:
+          description: OK
+        401:
+          description: Unauthorized
+        400:
+          description: Failed to update
+    delete:
+      summary: Delete a specific category
+      security:
+        - bearer: [ ]
+      parameters:
+        - name: donationId
+          in: path
+          required: true
+          type: string
+          description: The unique identifier of the donation.
+        - name: paymentStatus
+          in: body
+          description: Status is enum "Paid","Unsettled","Failed",
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                required: true
+      responses:
+        200:
+          description: Donation deleted successfully
+        404:
+          description: Donation not found
           schema:
             type: object
             properties:
