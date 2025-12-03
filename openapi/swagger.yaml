@@ -531,6 +531,19 @@ paths:
             properties:
               message:
                 type: string
+  /projects/my-projects/all:
+    get:
+      summary: "Returns all projects where user is owner"
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Project"
+
 
   # Project update
   /projects/{projectId}/posts:

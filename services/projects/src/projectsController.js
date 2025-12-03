@@ -120,6 +120,15 @@ function useProjectsController(app) {
         }
     });
 
+    // get all projects where user is owner
+    app.get("/my-projects/all", async (req, res) => {
+        // TODO : filtering
+        const user = getUserFromHeader(req);
+
+        const projects = await Project.find({ ownerId: user.userId });
+        res.status(200).json(projects);
+    });
+
 }
 
 /**
