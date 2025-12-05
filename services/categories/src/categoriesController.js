@@ -41,6 +41,10 @@ function useCategoriesController(app) {
             // if (!isOwnerOrAdmin(user, project.ownerId)) {
             //     return RESPONSES.PERMISSION_DENIED(res);
             // }
+
+            const exists = await Category.findOne(category);
+            if (exists) return res.status(409).json({ error: "Category already exists" });
+
             const newCategory = new Category({...category});
             await newCategory.save();
             sendLog("Created new category : " + newCategory._id.toString(), LOG_TYPE.INFO);
