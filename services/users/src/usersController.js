@@ -161,4 +161,19 @@ async function getUserById(userId) {
 function hashPassword(password) {
     return bcrypt.hash(password, SALT_ROUNDS);
 }
-module.exports = { useUsersController, getUserById };
+async function createAdminUser() {
+    const passwordHash = await hashPassword("epickeHeslo159");
+
+    const user = new User({
+        name: "admin",
+        email: "admin@admin.cum",
+        password: passwordHash,
+        role: "ADMIN",
+        authType: "BASIC",
+        lastLoginAt: Date.now(),
+    });
+
+    user.save();
+    sendLog(`New ADMIN user created name: ${user.name}, email: ${user.email}, role: ${user.role}`, LOG_TYPE.INFO);
+}
+module.exports = { useUsersController, getUserById, createAdminUser };
