@@ -162,11 +162,16 @@ function hashPassword(password) {
     return bcrypt.hash(password, SALT_ROUNDS);
 }
 async function createAdminUser() {
+    const adminMail = "admin@admin.cum"
+    const foundUser = await User.findOne({ adminMail })
+    if(foundUser){
+        return
+    }
     const passwordHash = await hashPassword("epickeHeslo159");
 
     const user = new User({
         name: "admin",
-        email: "admin@admin.cum",
+        email: adminMail,
         password: passwordHash,
         role: "ADMIN",
         authType: "BASIC",
