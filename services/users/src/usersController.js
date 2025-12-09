@@ -163,12 +163,11 @@ function hashPassword(password) {
 }
 async function createAdminUser() {
     const adminMail = "admin@admin.cum"
-    const foundUser = await User.findOne({ adminMail })
+    const foundUser = await User.findOne({ email: adminMail })
     if(foundUser){
         return
     }
     const passwordHash = await hashPassword("epickeHeslo159");
-
     const user = new User({
         name: "admin",
         email: adminMail,
@@ -177,7 +176,6 @@ async function createAdminUser() {
         authType: "BASIC",
         lastLoginAt: Date.now(),
     });
-
     user.save();
     sendLog(`New ADMIN user created name: ${user.name}, email: ${user.email}, role: ${user.role}`, LOG_TYPE.INFO);
 }
