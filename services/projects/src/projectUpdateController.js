@@ -2,7 +2,8 @@ const {getProjectById} = require("./projectsController");
 const {ProjectUpdate} = require("./dbInit");
 const {sendLog, LOG_TYPE} = require("../../../common/utils/loggingUtils");
 const {RESPONSES} = require("../../../common/utils/responseUtils");
-const {authenticateJWT, getUserFromHeader, USER_ROLES, isOwnerOrAdmin} = require("../../../common/utils/authenticationUtils");
+const {authenticateJWT, getUserFromHeader, USER_ROLES, isOwnerOrAdmin, validateParamSchema, validateBodySchema} = require("../../../common/utils/authenticationUtils");
+const { object, string, number, bool, date} = require("yup");
 
 
 
@@ -11,7 +12,11 @@ function useProjectUpdateController(app) {
     /**
      * Get all project posts associated with project
      */
-    app.get("/:projectId/posts", async (req, res) => {
+    app.get("/:projectId/posts",
+        validateParamSchema(object({
+            projectId: string().required()
+        })),
+        async (req, res) => {
         const { projectId } = req.params;
 
         const project = await getProjectById(projectId);
@@ -33,7 +38,15 @@ function useProjectUpdateController(app) {
      * @param name : String,
      * @param content : String,
      */
-    app.post("/:projectId/posts", authenticateJWT, async (req, res) => {
+    app.post("/:projectId/posts",
+        validateParamSchema(object({
+            projectId: string().required()
+        })),
+        validateBodySchema(object({
+            name: string().required(),
+            content: string().required()
+        })),
+        authenticateJWT, async (req, res) => {
         const { projectId } = req.params;
         const user = getUserFromHeader(req);
 
@@ -70,7 +83,12 @@ function useProjectUpdateController(app) {
     /**
      * get project post
      */
-    app.get("/:projectId/posts/:postId", async (req, res) => {
+    app.get("/:projectId/posts/:postId",
+        validateParamSchema(object({
+            projectId: string().required(),
+            postId: string().required()
+        })),
+        async (req, res) => {
         const { projectId, postId } = req.params;
 
         const post = await getProjectPostById(projectId, postId);
@@ -85,7 +103,16 @@ function useProjectUpdateController(app) {
     /**
      * Update post
      */
-    app.post("/:projectId/posts/:postId", authenticateJWT, async (req, res) => {
+    app.post("/:projectId/posts/:postId",
+        validateParamSchema(object({
+            projectId: string().required(),
+            postId: string().required()
+        })),
+        validateBodySchema(object({
+            name: string().required(),
+            content: string().required()
+        })),
+        authenticateJWT, async (req, res) => {
         const { projectId, postId } = req.params;
         const user = getUserFromHeader(req);
 
@@ -117,7 +144,12 @@ function useProjectUpdateController(app) {
         }
     });
 
-    app.delete("/:projectId/posts/:postId", authenticateJWT, async (req, res) => {
+    app.delete("/:projectId/posts/:postId",
+        validateParamSchema(object({
+            projectId: string().required(),
+            postId: string().required()
+        })),
+        authenticateJWT, async (req, res) => {
         const { projectId, postId } = req.params;
         const user = getUserFromHeader(req);
 
