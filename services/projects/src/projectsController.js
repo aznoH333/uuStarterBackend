@@ -11,10 +11,34 @@ function useProjectsController(app) {
 
     // get all projects
     app.get("/",
+        validateBodySchema(object({
+            title: string(),
+            categoryId: string(),
+            showOnlyApproved: bool()
+        })),
         async (req, res) => {
-        // TODO : filtering
-        const projects = await Project.find();
-        res.status(200).json(projects);
+
+
+            const searchQuery = {};
+
+            // hack to make body optional
+            if (req.body) {
+                if (req.body.title !== undefined) {
+                    searchQuery["name"] = { $regex: req.body.title, $options: 'i' };
+                }
+
+
+                if (req.body.categoryId !== undefined) {
+                    searchQuery["categoryId"] = req.body.categoryId;
+                }
+
+                if (req.body.showOnlyApproved) {
+                    searchQuery["status"] = PROJECT_STATUS.APPROVED
+                }
+            }
+
+            const projects = await Project.find(searchQuery);
+            res.status(200).json(projects);
     });
 
     app.get("/:projectId",
@@ -24,6 +48,9 @@ function useProjectsController(app) {
 
         async (req, res) => {
         const { projectId } = req.params;
+
+
+
 
         try {
             const project = await Project.findById(projectId);
@@ -168,7 +195,7 @@ function useProjectsController(app) {
     app.get("/my-projects/all",
         authenticateJWT,
         validateBodySchema(object({
-            name: string(),
+            title: string(),
             categoryId: string(),
             showOnlyApproved: bool()
         }))
@@ -178,18 +205,20 @@ function useProjectsController(app) {
         const searchQuery = {
             ownerId: user.userId
         };
+        // hack to make body optional
+        if (req.body) {
+            if (req.body.title !== undefined) {
+                searchQuery["name"] = { $regex: req.body.title, $options: 'i' };
+            }
 
-        if (req.body.title !== undefined) {
-            searchQuery["name"] = { $regex: req.body.title, $options: 'i' };
-        }
 
+            if (req.body.categoryId !== undefined) {
+                searchQuery["categoryId"] = req.body.categoryId;
+            }
 
-        if (req.body.categoryId !== undefined) {
-            searchQuery["categoryId"] = req.body.categoryId;
-        }
-
-        if (req.body.showOnlyApproved) {
-            searchQuery["status"] = PROJECT_STATUS.APPROVED
+            if (req.body.showOnlyApproved) {
+                searchQuery["status"] = PROJECT_STATUS.APPROVED
+            }
         }
 
 
