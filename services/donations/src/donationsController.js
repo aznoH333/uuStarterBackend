@@ -5,6 +5,7 @@ const {
     getUserFromHeader,
     isOwnerOrAdmin
 } = require("../../../common/utils/authenticationUtils");
+
 const {RESPONSES} = require("../../../common/utils/responseUtils");
 
 function useDonationsController(app) {

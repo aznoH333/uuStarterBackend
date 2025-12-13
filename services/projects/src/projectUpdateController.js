@@ -3,7 +3,7 @@ const {ProjectUpdate} = require("./dbInit");
 const {sendLog, LOG_TYPE} = require("../../../common/utils/loggingUtils");
 const {RESPONSES} = require("../../../common/utils/responseUtils");
 const {authenticateJWT, getUserFromHeader, USER_ROLES, isOwnerOrAdmin, validateParamSchema, validateBodySchema} = require("../../../common/utils/authenticationUtils");
-const { object, string, number, bool, date} = require("yup");
+const { object, string} = require("yup");
 
 
 

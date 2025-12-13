@@ -12,10 +12,11 @@
   },
   "dependencies": {
     "@auth/express": "^0.12.1",
+    "bcrypt": "^6.0.0",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "undici": "^5.29.0",
-    "bcrypt": "^6.0.0"
+    "yum": "^0.1.1"
   }
 }

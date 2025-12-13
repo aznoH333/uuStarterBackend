@@ -3,9 +3,11 @@ const {sendLog, LOG_TYPE} = require("../../../common/utils/loggingUtils");
 const {
     authenticateJWT,
     getUserFromHeader,
-    isOwnerOrAdmin
+    isOwnerOrAdmin, validateParamSchema, validateBodySchema
 } = require("../../../common/utils/authenticationUtils");
 const {RESPONSES} = require("../../../common/utils/responseUtils");
+const { object, string, number} = require("yup");
+
 
 function useCategoriesController(app) {
     // get all categories
@@ -14,7 +16,10 @@ function useCategoriesController(app) {
         res.status(200).json(categories);
     });
 
-    app.get("/:categoryId", async (req, res) => {
+    app.get("/:categoryId",
+        validateParamSchema(object({
+            categoryId: string().required()
+        })), async (req, res) => {
         const {categoryId} = req.params;
 
         try {
@@ -32,7 +37,11 @@ function useCategoriesController(app) {
      * @param name : String
      * @returns {CategoryEntity}
      */
-    app.post("/", authenticateJWT, async (req, res) => {
+    app.post("/",
+        validateBodySchema(object({
+            name: string().required()
+        })),
+        authenticateJWT, async (req, res) => {
         const user = getUserFromHeader(req);
         const category = {
             name: req.body.name
@@ -60,7 +69,14 @@ function useCategoriesController(app) {
      * Updates existing category
      * @param name : String
      */
-    app.post("/:categoryId", authenticateJWT, async (req, res) => {
+    app.post("/:categoryId",
+        validateParamSchema(object({
+            categoryId: string().required()
+        })),
+        validateBodySchema(object({
+            name: string().required()
+        })),
+        authenticateJWT, async (req, res) => {
         const {categoryId} = req.params;
         const user = getUserFromHeader(req);
 
@@ -85,7 +101,11 @@ function useCategoriesController(app) {
      * Deletes category
      * @param categoryId : String
      */
-    app.delete("/:categoryId", async (req, res) => {
+    app.delete("/:categoryId",
+        validateParamSchema(object({
+            categoryId: string().required()
+        })),
+        async (req, res) => {
         const {categoryId} = req.params;
         const user = getUserFromHeader(req);
 
