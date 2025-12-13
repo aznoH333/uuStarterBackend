@@ -3,8 +3,10 @@ const {sendLog, LOG_TYPE} = require("../../../common/utils/loggingUtils");
 const {
     authenticateJWT,
     getUserFromHeader,
-    isOwnerOrAdmin
+    isOwnerOrAdmin, validateParamSchema, validateBodySchema
 } = require("../../../common/utils/authenticationUtils");
+const { object, string, number } = require("yup");
+
 
 const {RESPONSES} = require("../../../common/utils/responseUtils");
 
@@ -16,7 +18,10 @@ function useDonationsController(app) {
         res.status(200).json(donations);
     });
 
-    app.get("/:donationId", async (req, res) => {
+    app.get("/:donationId",
+        validateParamSchema(object({
+            donationId: string().required()
+        })), async (req, res) => {
         const {donationId} = req.params;
 
         try {
@@ -34,7 +39,12 @@ function useDonationsController(app) {
      * @param amount : Number - number in $?
      * @returns {DonationEntity}
      */
-    app.post("/", authenticateJWT, async (req, res) => {
+    app.post("/",
+        validateBodySchema(object({
+            projectId: string().required(),
+            amount: number().min(0).required()
+        })),
+        authenticateJWT, async (req, res) => {
         const user = getUserFromHeader(req);
         const donation = {
             userId: user.userId,

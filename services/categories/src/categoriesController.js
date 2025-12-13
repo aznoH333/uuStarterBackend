@@ -6,7 +6,7 @@ const {
     isOwnerOrAdmin, validateParamSchema, validateBodySchema
 } = require("../../../common/utils/authenticationUtils");
 const {RESPONSES} = require("../../../common/utils/responseUtils");
-const { object, string, number} = require("yup");
+const { object, string} = require("yup");
 
 
 function useCategoriesController(app) {
