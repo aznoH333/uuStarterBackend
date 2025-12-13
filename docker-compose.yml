@@ -98,7 +98,7 @@ services:
     ports:
       - "3005:3000"
     environment:
-      - DATABASE_URI=mongodb://categories-db:27018/categories
+      - DATABASE_URI=mongodb://categories-db:27020/categories
 
   categories-db:
     image: mongo
@@ -121,7 +121,7 @@ services:
     ports:
       - "3006:3000"
     environment:
-      - DATABASE_URI=mongodb://donations-db:27018/donations
+      - DATABASE_URI=mongodb://donations-db:27021/donations
 
   donations-db:
     image: mongo

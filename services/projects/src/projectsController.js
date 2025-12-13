@@ -1,19 +1,30 @@
 
 const {Project} = require("./dbInit");
 const {sendLog, LOG_TYPE} = require("../../../common/utils/loggingUtils");
-const {ProjectEntity} = require("../../../common/entities/projectEntity");
-const {authenticateJWT, getUserFromHeader, USER_ROLES, isOwnerOrAdmin} = require("../../../common/utils/authenticationUtils");
+const {ProjectEntity, PROJECT_STATUS} = require("../../../common/entities/projectEntity");
+const {authenticateJWT, getUserFromHeader, USER_ROLES, isOwnerOrAdmin, validateParamSchema, validateBodySchema} = require("../../../common/utils/authenticationUtils");
 const {RESPONSES} = require("../../../common/utils/responseUtils");
+const { object, string, number, bool, date} = require("yup");
+
 
 function useProjectsController(app) {
+
+
+
     // get all projects
-    app.get("/", async (req, res) => {
+    app.get("/",
+        async (req, res) => {
         // TODO : filtering
         const projects = await Project.find();
         res.status(200).json(projects);
     });
 
-    app.get("/:projectId", async (req, res) => {
+    app.get("/:projectId",
+        validateParamSchema(object({
+            projectId: string().required()
+        })),
+
+        async (req, res) => {
         const { projectId } = req.params;
 
         try {
@@ -35,7 +46,16 @@ function useProjectsController(app) {
      * @param categoryId : String | undefined - category id (optional)
      * @returns {ProjectEntity}
      */
-    app.post("/", authenticateJWT, async (req, res) => {
+    app.post("/",
+        authenticateJWT,
+        validateBodySchema(object({
+            name: string().required(),
+            description: string().required(),
+            goalAmount: number().required(),
+            deadLine: date().required(),
+            categoryId: string(),
+        })),
+        async (req, res) => {
         const user = getUserFromHeader(req);
         const project = ProjectEntity.createNew(
             req.body.name,
@@ -67,7 +87,20 @@ function useProjectsController(app) {
      * @param categoryId : String | undefined - category id (optional)
      * @param status : String - supported values ["PendingApproval", "Approved", "Rejected", "Closed"]
      */
-    app.post("/:projectId", authenticateJWT, async (req, res)=> {
+    app.post("/:projectId",
+        validateParamSchema(object({
+            projectId: string().required()
+        })),
+        validateBodySchema(object({
+            name: string().required(),
+            description: string().required(),
+            goalAmount: number().required(),
+            deadLine: date().required(),
+            categoryId: string(),
+            status: string().oneOf(Object.values(PROJECT_STATUS)).required()
+        }))
+
+        , authenticateJWT, async (req, res)=> {
         const { projectId } = req.params;
         const user = getUserFromHeader(req);
 
@@ -76,7 +109,11 @@ function useProjectsController(app) {
 
 
             if (!isOwnerOrAdmin(user, project.ownerId)) {
-                return RESPONSES.PERMISSION_DENIED(res);
+                return RESPONSES.PERMISSION_DENIED(res, { reason: "insufficient permisions for user", user: user});
+            }
+
+            if (project.status !== req.body.status && user.role !== USER_ROLES.ADMIN && req.body.status !== "Closed") {
+                return RESPONSES.PERMISSION_DENIED(res, "Admin account required to change project state")
             }
 
             project.name = req.body.name;
@@ -86,6 +123,7 @@ function useProjectsController(app) {
             project.lastUpdatedDate = new Date();
             project.categoryId = req.body.categoryId;
             project.status = req.body.status;
+
 
             await project.save();
             sendLog("Updated project : " + project._id.toString(), LOG_TYPE.INFO);
@@ -100,13 +138,19 @@ function useProjectsController(app) {
      * "Deletes" project (sets status to "CLOSED")
      * @param projectId : String
      */
-    app.delete("/:projectId", async (req, res) => {
+    app.delete(
+        "/:projectId",
+        authenticateJWT,
+        validateParamSchema(object({
+            projectId: string().required()
+        })),
+        async (req, res) => {
         const { projectId } = req.params;
         const user = getUserFromHeader(req);
 
         try {
             if (!isOwnerOrAdmin(user, project.ownerId)) {
-                return RESPONSES.PERMISSION_DENIED(res);
+                return RESPONSES.PERMISSION_DENIED(res, { reason: "insufficient permisions for user", user: user});
             }
             const project = await Project.findByIdAndDelete(projectId);
             project.status = "CLOSED"
@@ -121,11 +165,37 @@ function useProjectsController(app) {
     });
 
     // get all projects where user is owner
-    app.get("/my-projects/all", async (req, res) => {
-        // TODO : filtering
+
+
+    app.get("/my-projects/all",
+        authenticateJWT,
+        validateBodySchema(object({
+            name: string(),
+            categoryId: string(),
+            showOnlyApproved: bool()
+        }))
+        , async (req, res) => {
         const user = getUserFromHeader(req);
 
-        const projects = await Project.find({ ownerId: user.userId });
+        const searchQuery = {
+            ownerId: user.userId
+        };
+
+        if (req.body.title !== undefined) {
+            searchQuery["name"] = { $regex: req.body.title, $options: 'i' };
+        }
+
+
+        if (req.body.categoryId !== undefined) {
+            searchQuery["categoryId"] = req.body.categoryId;
+        }
+
+        if (req.body.showOnlyApproved) {
+            searchQuery["status"] = PROJECT_STATUS.APPROVED
+        }
+
+
+        const projects = await Project.find(searchQuery);
         res.status(200).json(projects);
     });
 
