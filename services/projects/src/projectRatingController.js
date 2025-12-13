@@ -2,23 +2,20 @@ const {getProjectById} = require("./projectsController");
 const {ProjectRating} = require("./dbInit");
 const {sendLog, LOG_TYPE} = require("../../../common/utils/loggingUtils");
 const {RESPONSES} = require("../../../common/utils/responseUtils");
-const {authenticateJWT, getUserFromHeader, isOwnerOrAdmin} = require("../../../common/utils/authenticationUtils");
+const {authenticateJWT, getUserFromHeader, isOwnerOrAdmin, validateParamSchema, validateBodySchema} = require("../../../common/utils/authenticationUtils");
+const { object, string, number, bool, date} = require("yup");
 
 
-/*
-const ProjectRatingSchema = new mongoose.Schema({
-    userId: {type: String, required: true},
-    projectId: {type: String, required: true},
-    value: {type: Number, required: true},
-    creationDate: {type: Date, required: true},
-});
- */
 
 function useProjectRatingController(app) {
     /**
      * Get all project ratings associated with project
      */
-    app.get("/:projectId/ratings", async (req, res) => {
+    app.get("/:projectId/ratings",
+        validateParamSchema(object({
+            projectId: string().required()
+        }))
+        , async (req, res) => {
         const { projectId } = req.params;
 
         const project = await getProjectById(projectId);
@@ -39,7 +36,15 @@ function useProjectRatingController(app) {
      * Add a new project rating
      * @param value : Number,
      */
-    app.post("/:projectId/ratings", authenticateJWT, async (req, res) => {
+    app.post(
+        "/:projectId/ratings",
+        validateParamSchema(object({
+            projectId: string().required()
+        })),
+        validateBodySchema(object({
+            value: number().min(0).max(5).required(),
+        })),
+        authenticateJWT, async (req, res) => {
         const { projectId } = req.params;
         const user = getUserFromHeader(req);
 
@@ -71,7 +76,12 @@ function useProjectRatingController(app) {
     /**
      * get project rating
      */
-    app.get("/:projectId/ratings/:ratingId", async (req, res) => {
+    app.get("/:projectId/ratings/:ratingId",
+        validateParamSchema(object({
+            projectId: string().required(),
+            ratingId: string().required(),
+        })),
+        async (req, res) => {
         const { projectId, ratingId } = req.params;
 
         const rating = await getProjectRatingById(projectId, ratingId);
@@ -83,7 +93,16 @@ function useProjectRatingController(app) {
         res.status(200).json(rating).send();
     });
 
-    app.post("/:projectId/ratings/:ratingId", authenticateJWT, async (req, res) => {
+    app.post("/:projectId/ratings/:ratingId",
+        validateParamSchema(object({
+            projectId: string().required(),
+            ratingId: string().required(),
+        })),
+        validateBodySchema(object({
+            value: number().min(0).max(5).required(),
+        })),
+        authenticateJWT,
+        async (req, res) => {
         const { projectId, ratingId } = req.params;
         const user = getUserFromHeader(req);
 
@@ -112,7 +131,12 @@ function useProjectRatingController(app) {
         }
     });
 
-    app.delete("/:projectId/ratings/:ratingId", authenticateJWT, async (req, res) => {
+    app.delete("/:projectId/ratings/:ratingId",
+        validateParamSchema(object({
+            projectId: string().required(),
+            ratingId: string().required(),
+        })),
+        authenticateJWT, async (req, res) => {
         const { projectId, ratingId } = req.params;
         const user = getUserFromHeader(req);
 

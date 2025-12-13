@@ -9,8 +9,6 @@ const { object, string, number, bool, date} = require("yup");
 
 function useProjectsController(app) {
 
-
-
     // get all projects
     app.get("/",
         async (req, res) => {
