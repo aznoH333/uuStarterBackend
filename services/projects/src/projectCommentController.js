@@ -4,14 +4,21 @@
 const {getProjectById} = require("./projectsController");
 const {ProjectComment} = require("./dbInit");
 const {sendLog, LOG_TYPE} = require("../../../common/utils/loggingUtils");
-const {authenticateJWT, getUserFromHeader, isOwnerOrAdmin} = require("../../../common/utils/authenticationUtils");
+const {authenticateJWT, getUserFromHeader, isOwnerOrAdmin, validateParamSchema, validateBodySchema} = require("../../../common/utils/authenticationUtils");
 const {RESPONSES} = require("../../../common/utils/responseUtils");
+const { object, string, number} = require("yup");
+
 
 function useProjectCommentController(app) {
     /**
      * Get all project comments associated with project
      */
-    app.get("/:projectId/comments", async (req, res) => {
+    app.get("/:projectId/comments",
+        validateParamSchema(object({
+            projectId: string().required()
+        })),
+
+        async (req, res) => {
         const { projectId } = req.params;
 
         const project = await getProjectById(projectId);
@@ -32,7 +39,14 @@ function useProjectCommentController(app) {
      * Add a new project comment
      * @param content : String,
      */
-    app.post("/:projectId/comments", authenticateJWT, async (req, res) => {
+    app.post("/:projectId/comments",
+        validateParamSchema(object({
+            projectId: string().required()
+        })),
+        validateBodySchema(object({
+            content: string().required()
+        })),
+        authenticateJWT, async (req, res) => {
         const { projectId } = req.params;
 
         const project = await getProjectById(projectId);
@@ -65,7 +79,13 @@ function useProjectCommentController(app) {
     /**
      * get project comment
      */
-    app.get("/:projectId/comments/:commentId", async (req, res) => {
+    app.get(
+        "/:projectId/comments/:commentId",
+        validateParamSchema(object({
+            projectId: string().required(),
+            commentId: string().required()
+        })),
+        async (req, res) => {
         const { projectId, commentId } = req.params;
 
         const comment = await getProjectCommentById(projectId, commentId);
@@ -80,7 +100,16 @@ function useProjectCommentController(app) {
     /**
      * update project comment
      */
-    app.post("/:projectId/comments/:commentId", authenticateJWT, async (req, res) => {
+    app.post(
+        "/:projectId/comments/:commentId",
+        validateParamSchema(object({
+            projectId: string().required(),
+            commentId: string().required()
+        })),
+        validateBodySchema(object({
+            content: string().required()
+        })),
+        authenticateJWT, async (req, res) => {
         const { projectId, commentId } = req.params;
 
         const comment = await getProjectCommentById(projectId, commentId);
@@ -111,7 +140,12 @@ function useProjectCommentController(app) {
         }
     });
 
-    app.delete("/:projectId/comments/:commentId", async (req, res) => {
+    app.delete("/:projectId/comments/:commentId",
+        validateParamSchema(object({
+            projectId: string().required(),
+            commentId: string().required()
+        }))
+        , async (req, res) => {
         const { projectId, commentId } = req.params;
 
         const comment = await getProjectCommentById(projectId, commentId);
