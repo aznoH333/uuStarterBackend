@@ -90,7 +90,7 @@ function useUsersController(app) {
             }
 
             const exists = await User.findOne({ email });
-            if (exists) return res.status(409).json({ error: "Email already registered" });
+            if (exists) return res.status(409).json({ error: "User with this email already exists!" });
 
             const passwordHash = await hashPassword(password);
 
