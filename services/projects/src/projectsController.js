@@ -87,6 +87,7 @@ function useProjectsController(app) {
             req.body.description,
             user.userId,
             req.body.goalAmount,
+            0,
             req.body.deadLine,
             req.body.categoryId,
         );
@@ -108,6 +109,7 @@ function useProjectsController(app) {
      * @param name : String
      * @param description : String
      * @param goalAmount : Number - number in $?
+     * @param currentAmount : Number - number in $?
      * @param deadLine : Date
      * @param categoryId : String | undefined - category id (optional)
      * @param status : String - supported values ["PendingApproval", "Approved", "Rejected", "Closed"]
@@ -120,6 +122,7 @@ function useProjectsController(app) {
             name: string().required(),
             description: string().required(),
             goalAmount: number().required(),
+            currentAmount: number().required(),
             deadLine: date().required(),
             categoryId: string(),
             status: string().oneOf(Object.values(PROJECT_STATUS)).required()
@@ -144,6 +147,7 @@ function useProjectsController(app) {
             project.name = req.body.name;
             project.description = req.body.description;
             project.goalAmount = req.body.goalAmount;
+            project.currentAmount = req.body.currentAmount;
             project.deadLine = req.body.deadLine;
             project.lastUpdatedDate = new Date();
             project.categoryId = req.body.categoryId;

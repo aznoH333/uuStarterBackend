@@ -6,6 +6,7 @@ const {
     isOwnerOrAdmin, validateParamSchema, validateBodySchema
 } = require("../../../common/utils/authenticationUtils");
 const { object, string, number } = require("yup");
+require("dotenv").config();
 
 
 const {RESPONSES} = require("../../../common/utils/responseUtils");
@@ -59,6 +60,44 @@ function useDonationsController(app) {
             // }
             const  newDonation= new Donation({...donation});
             await newDonation.save();
+            // TODO(Get project and edit that project current amout + new donation)
+            // try {
+            //     const url = process.env.PROJECTS_SERVICE_URL + "/"+req.body.projectId;
+            //     const projectRes = await fetch(url, {
+            //         method: "GET",
+            //         headers: { "Content-Type": "application/json", "Authorization": req.headers.authorization },
+            //
+            //     });
+            //     if (!projectRes.ok) return res.status(401).json({ error: "Invalid credentials" });
+            //     const project = await projectRes.json();
+            //
+            //     try {
+            //         const url = process.env.PROJECTS_SERVICE_URL + "/" +req.body.projectId;
+            //         const projectRes = await fetch(url, {
+            //             method: "POST",
+            //             headers: { "Content-Type": "application/json", "Authorization": req.headers.authorization },
+            //             body: JSON.stringify(
+            //                 {
+            //                     name : project.name,
+            //                     description : project.description,
+            //                     goalAmount : project.goalAmount,
+            //                     currentAmount : project.currentAmount,
+            //                     deadLine : project.deadLine,
+            //                     lastUpdatedDate : project.lastUpdatedDate,
+            //                     categoryId : project.categoryId,
+            //                     status : project.status,
+            //                 }
+            //             ),
+            //         });
+            //         if (!projectRes.ok) return res.status(401).json({ error: "Invalid credentials" });
+            //     } catch (err) {
+            //         res.status(500).json({ error: "POST Project in donation create failed" });
+            //     }
+            //
+            // } catch (err) {
+            //     res.status(500).json({ error: "GET Project in donation create failed", err });
+            // }
+
             sendLog("Created new donation : " + newDonation._id.toString(), LOG_TYPE.INFO);
             res.status(200).send();
         } catch (e) {

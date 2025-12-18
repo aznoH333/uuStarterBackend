@@ -486,12 +486,17 @@ paths:
                 type: string
               goalAmount:
                 type: number
+              currentAmount:
+                type: number
               deadLine:
                 type: string
                 example: 2025-11-09T13:50:39.490Z
               category:
                 type: string
                 required: false
+              status:
+                type: string
+                description: 'supported values ["PendingApproval", "Approved", "Rejected", "Closed"]'
       responses:
         200:
           description: OK

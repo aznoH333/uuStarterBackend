@@ -9,6 +9,7 @@
  * creationDate: Date
  * lastUpdatedDate: Date
  * goalAmount: Number
+ * currentAmount: Number
  * deadLine: Date
  * status: String [PendingApproval, Approved, Rejected, Closed]
  * categoryId: String
@@ -22,7 +23,7 @@ const PROJECT_STATUS = {
 
 
 class ProjectEntity {
-    constructor(_id, name, description, ownerId, creationDate, lastUpdatedDate, goalAmount, deadLine, status, categoryId) {
+    constructor(_id, name, description, ownerId, creationDate, lastUpdatedDate, goalAmount, currentAmount, deadLine, status, categoryId) {
         this._id = _id;
         this.name = name;
         this.description = description;
@@ -30,6 +31,7 @@ class ProjectEntity {
         this.creationDate = creationDate;
         this.lastUpdatedDate = lastUpdatedDate;
         this.goalAmount = goalAmount;
+        this.currentAmount = currentAmount;
         this.deadLine = deadLine;
         this.status = status;
         this.categoryId = categoryId;
@@ -44,6 +46,7 @@ class ProjectEntity {
             data.creationDate,
             data.lastUpdatedDate,
             data.goalAmount,
+            data.currentAmount,
             data.deadLine,
             data.status,
             data.categoryId,
@@ -56,11 +59,12 @@ class ProjectEntity {
      * @param description : String
      * @param ownerId : String - id of owner user
      * @param goalAmount : Number - number in $?
+     * @param currentAmount : Number - number in $?
      * @param deadLine : Date
      * @param categoryId : String | undefined - category id (optional)
      * @returns {ProjectEntity}
      */
-    static createNew(name, description, ownerId, goalAmount, deadLine, categoryId = undefined) {
+    static createNew(name, description, ownerId, goalAmount, currentAmount, deadLine, categoryId = undefined) {
         return new ProjectEntity(
             undefined,
             name,
@@ -69,6 +73,7 @@ class ProjectEntity {
             new Date(),
             new Date(),
             goalAmount,
+            currentAmount,
             deadLine,
             PROJECT_STATUS.PENDING_APPROVAL,
             categoryId,
