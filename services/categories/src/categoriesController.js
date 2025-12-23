@@ -47,9 +47,9 @@ function useCategoriesController(app) {
             name: req.body.name
         }
         try {
-            // if (!isOwnerOrAdmin(user, project.ownerId)) {
-            //     return RESPONSES.PERMISSION_DENIED(res);
-            // }
+            if (!isOwnerOrAdmin(user)) {
+                return RESPONSES.PERMISSION_DENIED(res);
+            }
 
             const exists = await Category.findOne(category);
             if (exists) return res.status(409).json({ error: "Category already exists" });

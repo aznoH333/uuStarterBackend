@@ -1,6 +1,6 @@
 const {User} = require("./dbInit");
 const {sendLog, LOG_TYPE} = require("../../../common/utils/loggingUtils");
-const {authenticateJWT, getUserFromHeader} = require("../../../common/utils/authenticationUtils");
+const {authenticateJWT, getUserFromHeader, isOwnerOrAdmin} = require("../../../common/utils/authenticationUtils");
 const {RESPONSES} = require("../../../common/utils/responseUtils");
 const bcrypt = require('bcrypt');
 const SALT_ROUNDS = 12;
@@ -31,17 +31,20 @@ function useUsersController(app) {
     /**
      * Updates existing user
      * @param name : String
-     * @param emial : String
+     * @param email : String
      * @param password : String
      */
    app.put("/:userId", authenticateJWT, async (req, res)=> {
-        // TODO: Do some permissions for this shit xd
         const { userId } = req.params;
-        const user = getUserFromHeader(req);
-
         try {
             const user = await User.findById(userId);
+            const name = (req.body.name || '').trim();
+            const email = (req.body.email);
             const password = req.body.password;
+
+            if (!name || !email || !password) {
+                return res.status(400).json({ error: "Missing name/email/password" });
+            }
             const passwordHash = await hashPassword(password);
 
             user.name = req.body.name;
@@ -49,6 +52,28 @@ function useUsersController(app) {
             user.password = passwordHash;
             await user.save();
             sendLog("Updated user : " + user._id.toString(), LOG_TYPE.INFO);
+            res.status(200).send();
+        }catch (e) {
+            sendLog("Failed to save user : " + userId + "\n Failed with error : " + e, LOG_TYPE.ERROR);
+            return RESPONSES.SAVE_FAILED(res);
+        }
+    });
+
+    /**
+     * Updates existing user role
+     * @param role : String
+     */
+    app.put("/update-role/:userId", authenticateJWT, async (req, res)=> {
+        const { userId } = req.params;
+        const user = getUserFromHeader(req);
+        if (!isOwnerOrAdmin(user)) {
+            return RESPONSES.PERMISSION_DENIED(res);
+        }
+        try {
+            const user = await User.findById(userId);
+            user.role = req.body.role.toUpperCase();
+            await user.save();
+            sendLog("Updated user role for user: " + user._id.toString(), LOG_TYPE.INFO);
             res.status(200).send();
         }catch (e) {
             sendLog("Failed to save user : " + userId + "\n Failed with error : " + e, LOG_TYPE.ERROR);
