@@ -55,48 +55,10 @@ function useDonationsController(app) {
             paymentStatus: DONATION_STATUS.UNSETTLED
         }
         try {
-            // if (!isOwnerOrAdmin(user, project.ownerId)) {
-            //     return RESPONSES.PERMISSION_DENIED(res);
-            // }
+
             const  newDonation= new Donation({...donation});
             await newDonation.save();
-            // TODO(Get project and edit that project current amout + new donation)
-            // try {
-            //     const url = process.env.PROJECTS_SERVICE_URL + "/"+req.body.projectId;
-            //     const projectRes = await fetch(url, {
-            //         method: "GET",
-            //         headers: { "Content-Type": "application/json", "Authorization": req.headers.authorization },
-            //
-            //     });
-            //     if (!projectRes.ok) return res.status(401).json({ error: "Invalid credentials" });
-            //     const project = await projectRes.json();
-            //
-            //     try {
-            //         const url = process.env.PROJECTS_SERVICE_URL + "/" +req.body.projectId;
-            //         const projectRes = await fetch(url, {
-            //             method: "POST",
-            //             headers: { "Content-Type": "application/json", "Authorization": req.headers.authorization },
-            //             body: JSON.stringify(
-            //                 {
-            //                     name : project.name,
-            //                     description : project.description,
-            //                     goalAmount : project.goalAmount,
-            //                     currentAmount : project.currentAmount,
-            //                     deadLine : project.deadLine,
-            //                     lastUpdatedDate : project.lastUpdatedDate,
-            //                     categoryId : project.categoryId,
-            //                     status : project.status,
-            //                 }
-            //             ),
-            //         });
-            //         if (!projectRes.ok) return res.status(401).json({ error: "Invalid credentials" });
-            //     } catch (err) {
-            //         res.status(500).json({ error: "POST Project in donation create failed" });
-            //     }
-            //
-            // } catch (err) {
-            //     res.status(500).json({ error: "GET Project in donation create failed", err });
-            // }
+
 
             sendLog("Created new donation : " + newDonation._id.toString(), LOG_TYPE.INFO);
             res.status(200).send();
@@ -106,6 +68,42 @@ function useDonationsController(app) {
 
         }
     });
+
+    /**
+     * Gets summed donation values for projects
+     *
+     * @param projectIds - a list of projects to fetch values for. If undefined returns a list every project
+     *
+     *
+     * Should be a get. But is a post because some dumbass decided that gets have to use query params instead of bodies and i am lazy to rewrite this.
+     */
+    app.post("/summed/projects",
+            async (req, res) => {
+
+                const agregateQuery = [{
+                    $group: {
+                        _id : "$projectId",
+                        currentValue: { $sum: "$amount" }
+                    }
+                }];
+                if (req.body.projectIds) {
+                    agregateQuery.push({
+                        $match: {
+                            _id: { $in: req.body.projectIds } // Filter results where foo is in the specified list
+                        }
+                    })
+                }
+
+                try {
+                    const donations = await Donation.aggregate(agregateQuery);
+
+                    return res.status(200).json(donations);
+                }catch (e) {
+                    console.log(e);
+                    return res.status(500).send();
+                }
+            }
+        );
 
     /**
      * Updates existing donation

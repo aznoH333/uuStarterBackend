@@ -1,10 +1,11 @@
-
 const {Project} = require("./dbInit");
 const {sendLog, LOG_TYPE} = require("../../../common/utils/loggingUtils");
 const {ProjectEntity, PROJECT_STATUS} = require("../../../common/entities/projectEntity");
 const {authenticateJWT, getUserFromHeader, USER_ROLES, isOwnerOrAdmin, validateParamSchema, validateBodySchema} = require("../../../common/utils/authenticationUtils");
 const {RESPONSES} = require("../../../common/utils/responseUtils");
 const { object, string, number, bool, date} = require("yup");
+
+
 
 
 function useProjectsController(app) {
@@ -38,7 +39,12 @@ function useProjectsController(app) {
             }
 
             const projects = await Project.find(searchQuery);
-            res.status(200).json(projects);
+            try {
+            const projectsWithAdditionalData = await lookupAdditionalProjectFields(projects)
+            return res.status(200).json(projectsWithAdditionalData);
+            } catch (e) {
+                return res.status(500).send();
+            }
     });
 
     app.get("/:projectId",
@@ -54,7 +60,10 @@ function useProjectsController(app) {
 
         try {
             const project = await Project.findById(projectId);
-            res.status(200).json(project);
+
+            const lookedUpProject = (await lookupAdditionalProjectFields([project]))[0];
+
+            res.status(200).json(lookedUpProject);
 
         }catch (e) {
             return RESPONSES.ENTITY_NOT_FOUND(res);
@@ -194,8 +203,6 @@ function useProjectsController(app) {
     });
 
     // get all projects where user is owner
-
-
     app.get("/my-projects/all",
         authenticateJWT,
         validateBodySchema(object({
@@ -244,5 +251,44 @@ async function getProjectById(projectId) {
         return undefined;
     }
 }
+
+
+async function lookupAdditionalProjectFields(projects) {
+    const ids = projects.map((it)=>it._id.toString());
+
+    const fetch = (await import('node-fetch')).default; // This is utter dogshit. Why have an import syntax that works only for some files?
+
+    // fetch donations
+    const response = await fetch(`${process.env.DONATIONS_SERVICE_URL}/summed/projects`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ projectIds: ids }),
+    });
+
+
+    if (!response.ok) {
+        throw Error("failed to fetch donations");
+    }
+
+
+    const responseJson = await response.json();
+
+    const output = [];
+
+
+    for (const project of projects) {
+
+
+        const value = responseJson.find((it)=>it._id === project._id.toString());
+
+        output.push({
+            ...project._doc,
+            currentAmount: (value ? value.currentValue : 0)
+        })
+    }
+
+    return output;
+}
+
 
 module.exports = { useProjectsController, getProjectById };

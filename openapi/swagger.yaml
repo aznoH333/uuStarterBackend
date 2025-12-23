@@ -89,6 +89,10 @@ definitions:
         description: Current status of the project
         enum: [ PendingApproval, Approved, Rejected, Closed ]
         example: "PendingApproval"
+      currentAmount:
+        type: float
+        description: Amount of money the project currently has
+        example: 0
   ProjectUpdate:
     type: object
     properties:
