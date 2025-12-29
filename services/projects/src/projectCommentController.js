@@ -192,6 +192,8 @@ function useProjectCommentController(app) {
 
 
             await ProjectComment.deleteOne({"_id": commentId, "projectId": projectId});
+
+            await deleteCommentRecursive(commentId, projectId);
             res.status(200).send();
         }catch(e) {
             RESPONSES.SAVE_FAILED(res);
@@ -235,3 +237,22 @@ async function fillOutProjectCommentViewModel(comment) {
 }
 
 module.exports = { useProjectCommentController };
+
+
+/**
+ * Deletes a comment and all its children. Recursively searches for all children to delete
+ * @param commentId
+ * @param projectId
+ * @returns {Promise<void>}
+ */
+async function deleteCommentRecursive(commentId, projectId) {
+    await ProjectComment.deleteOne({"_id": commentId, "projectId": projectId});
+    const comments = await ProjectComment.find({"parentCommentId": commentId, "projectId": projectId});
+
+    for (const comment of comments) {
+        await deleteCommentRecursive(
+            comment._id,
+            projectId
+        );
+    }
+}
