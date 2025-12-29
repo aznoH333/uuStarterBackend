@@ -93,6 +93,10 @@ definitions:
         type: float
         description: Amount of money the project currently has
         example: 0
+      categoryName:
+        type: string
+
+
   ProjectUpdate:
     type: object
     properties:

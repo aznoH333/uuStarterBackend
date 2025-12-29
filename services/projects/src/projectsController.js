@@ -4,6 +4,7 @@ const {ProjectEntity, PROJECT_STATUS} = require("../../../common/entities/projec
 const {authenticateJWT, getUserFromHeader, USER_ROLES, isOwnerOrAdmin, validateParamSchema, validateBodySchema} = require("../../../common/utils/authenticationUtils");
 const {RESPONSES} = require("../../../common/utils/responseUtils");
 const { object, string, number, bool, date} = require("yup");
+const {fetchFromService} = require("../../../common/utils/fetchUtils");
 
 
 
@@ -258,6 +259,8 @@ async function lookupAdditionalProjectFields(projects) {
 
     const fetch = (await import('node-fetch')).default; // This is utter dogshit. Why have an import syntax that works only for some files?
 
+
+    // TODO : refactor this to look like the other viewModel functions.
     // fetch donations
     const response = await fetch(`${process.env.DONATIONS_SERVICE_URL}/summed/projects`, {
         method: "POST",
@@ -271,9 +274,13 @@ async function lookupAdditionalProjectFields(projects) {
     }
 
 
+
+
     const responseJson = await response.json();
 
     const output = [];
+
+
 
 
     for (const project of projects) {
@@ -281,8 +288,12 @@ async function lookupAdditionalProjectFields(projects) {
 
         const value = responseJson.find((it)=>it._id === project._id.toString());
 
+        // fetch category
+        const category = await fetchFromService(`${process.env.CATEGORY_SERVICE_URL}/${project.categoryId}`);
+
         output.push({
             ...project._doc,
+            categoryName: category ? category.name : undefined, // This makes me appreciate typescript.
             currentAmount: (value ? value.currentValue : 0)
         })
     }
