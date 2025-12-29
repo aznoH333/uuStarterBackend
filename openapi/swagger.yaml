@@ -138,6 +138,9 @@ definitions:
       parentCommentId:
         type: string
         description: Id of the parent comment (nullable)
+      author:
+        type: object
+        $ref: "#/definitions/User"
   ProjectRating:
     type: object
     properties:

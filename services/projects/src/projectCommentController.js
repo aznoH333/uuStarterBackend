@@ -7,6 +7,7 @@ const {sendLog, LOG_TYPE} = require("../../../common/utils/loggingUtils");
 const {authenticateJWT, getUserFromHeader, isOwnerOrAdmin, validateParamSchema, validateBodySchema} = require("../../../common/utils/authenticationUtils");
 const {RESPONSES} = require("../../../common/utils/responseUtils");
 const { object, string, number} = require("yup");
+const {fetchFromService} = require("../../../common/utils/fetchUtils");
 
 
 function useProjectCommentController(app) {
@@ -29,9 +30,12 @@ function useProjectCommentController(app) {
 
 
         const projectComments = await ProjectComment.find({ "projectId": projectId});
+        try {
+            return res.status(200).json((await Promise.all(projectComments.map(async (it)=> await fillOutProjectCommentViewModel(it))))).send();
+        }catch(e) {
+            return RESPONSES.ENTITY_NOT_FOUND(res);
+        }
 
-
-        return res.status(200).json(projectComments).send();
 
     });
 
@@ -104,7 +108,7 @@ function useProjectCommentController(app) {
             return RESPONSES.ENTITY_NOT_FOUND(res);
         }
 
-        res.status(200).json(comment).send();
+        res.status(200).json(await fillOutProjectCommentViewModel(comment)).send();
     });
 
     /**
@@ -207,6 +211,22 @@ async function getProjectCommentById(projectId, postId) {
         return await ProjectComment.findOne({"_id": postId, "projectId": projectId});
     }catch (e) {
         return undefined;
+    }
+}
+
+
+async function fillOutProjectCommentViewModel(comment) {
+    const user = await fetchFromService(
+        `${process.env.USER_SERVICE_URL}/${comment.authorId}`
+    );
+
+    if (!user) {
+        throw Error("user not found");
+    }
+
+    return {
+        ...comment._doc, // I LOVE MONGO DB. YEAH WOOOOOOO
+        author: user,
     }
 }
 
