@@ -23,10 +23,10 @@ function useProjectCommentController(app) {
 
         const project = await getProjectById(projectId);
 
-
         if (!project) {
             return RESPONSES.ENTITY_NOT_FOUND(res);
         }
+
 
         const projectComments = await ProjectComment.find({ "projectId": projectId});
 
@@ -55,6 +55,15 @@ function useProjectCommentController(app) {
             return RESPONSES.ENTITY_NOT_FOUND(res);
         }
 
+
+        if (req.body.parentCommentId) {
+            const comment = await getProjectCommentById(projectId, req.body.parentCommentId);
+
+            if (!comment) {
+                return RESPONSES.ENTITY_NOT_FOUND(res);
+            }
+        }
+
         const user = getUserFromHeader(req);
 
         try {
@@ -63,6 +72,7 @@ function useProjectCommentController(app) {
                 authorId: user.userId,
                 content: req.body.content,
                 creationDate: new Date(),
+                parentCommentId: req.body.parentCommentId,
             });
 
             await comment.save();
@@ -118,6 +128,15 @@ function useProjectCommentController(app) {
             return RESPONSES.ENTITY_NOT_FOUND(res);
         }
 
+        if (req.body.parentCommentId) {
+            const comment = await getProjectCommentById(projectId, req.body.parentCommentId);
+
+            if (!comment) {
+                return RESPONSES.ENTITY_NOT_FOUND(res);
+            }
+        }
+
+
         const user = getUserFromHeader(req);
 
 
@@ -128,6 +147,7 @@ function useProjectCommentController(app) {
             }
 
             comment.content = req.body.content;
+            comment.parentCommentId = req.body.parentCommentId;
 
             await comment.save();
 

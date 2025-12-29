@@ -35,6 +35,7 @@ const ProjectCommentSchema = new mongoose.Schema({
     projectId: { type: String, required: true },
     content: { type: String, required: true },
     creationDate: { type: Date, required: true },
+    parentCommentId: { type: String, required: false },
 });
 const ProjectComment = mongoose.model("ProjectComment", ProjectCommentSchema);
 
