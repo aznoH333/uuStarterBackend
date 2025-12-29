@@ -107,8 +107,12 @@ function useProjectCommentController(app) {
         if (!comment) {
             return RESPONSES.ENTITY_NOT_FOUND(res);
         }
+        try {
+            res.status(200).json(await fillOutProjectCommentViewModel(comment)).send();
 
-        res.status(200).json(await fillOutProjectCommentViewModel(comment)).send();
+        }catch (e) {
+            return RESPONSES.ENTITY_NOT_FOUND(res);
+        }
     });
 
     /**

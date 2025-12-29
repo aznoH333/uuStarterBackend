@@ -161,6 +161,9 @@ definitions:
         type: string
         format: date-time
         description: Date when the rating was created.
+      author:
+        type: object
+        $ref: "#/definitions/User"
   Category:
     type: object
     properties:

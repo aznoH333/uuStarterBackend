@@ -4,6 +4,7 @@ const {sendLog, LOG_TYPE} = require("../../../common/utils/loggingUtils");
 const {RESPONSES} = require("../../../common/utils/responseUtils");
 const {authenticateJWT, getUserFromHeader, isOwnerOrAdmin, validateParamSchema, validateBodySchema} = require("../../../common/utils/authenticationUtils");
 const { object, string, number} = require("yup");
+const {fetchFromService} = require("../../../common/utils/fetchUtils");
 
 
 
@@ -26,9 +27,13 @@ function useProjectRatingController(app) {
         }
 
         const projectRatings = await ProjectRating.find({ "projectId": projectId});
+        try {
+            return res.status(200).json(await Promise.all(projectRatings.map(async (it)=> await fillOutProjectRatingViewModel(it)))).send();
 
+        }catch(e) {
+            return RESPONSES.ENTITY_NOT_FOUND(res);
+        }
 
-        return res.status(200).json(projectRatings).send();
 
     });
 
@@ -89,8 +94,11 @@ function useProjectRatingController(app) {
         if (!rating) {
             return RESPONSES.ENTITY_NOT_FOUND(res);
         }
-
-        res.status(200).json(rating).send();
+        try {
+            res.status(200).json(await fillOutProjectRatingViewModel(rating)).send();
+        }catch (e) {
+            return RESPONSES.ENTITY_NOT_FOUND(res);
+        }
     });
 
     app.post("/:projectId/ratings/:ratingId",
@@ -178,5 +186,20 @@ async function getProjectRatingById(projectId, projectRatingId) {
     }
 }
 
+
+async function fillOutProjectRatingViewModel(projectRating) {
+    const user = await fetchFromService(
+        `${process.env.USER_SERVICE_URL}/${projectRating.userId}`
+    );
+
+    if (!user) {
+        throw Error("user not found");
+    }
+
+    return {
+        ...projectRating._doc,
+        author: user,
+    }
+}
 
 module.exports = { useProjectRatingController }
