@@ -239,7 +239,7 @@ function useProjectsController(app) {
 
 
         const projects = await Project.find(searchQuery);
-        res.status(200).json(projects);
+        res.status(200).json(await lookupAdditionalProjectFields(projects));
     });
 
 }
