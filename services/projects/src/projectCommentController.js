@@ -189,8 +189,6 @@ function useProjectCommentController(app) {
             if (!isOwnerOrAdmin(user, comment.authorId)) {
                 return RESPONSES.PERMISSION_DENIED(res);
             }
-
-
             await ProjectComment.deleteOne({"_id": commentId, "projectId": projectId});
 
             await deleteCommentRecursive(commentId, projectId);

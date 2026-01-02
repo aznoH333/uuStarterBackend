@@ -42,10 +42,22 @@ function validateBodySchema(schema) {
     };
 }
 
+
 function validateParamSchema(schema) {
     return async (req, res, next) => {
         try {
             await schema.validate(req.params);
+            next();
+        }catch(e) {
+            return res.status(400).json({data: req.params, error: e.message}).send();
+        }
+    }
+}
+
+function validateQuerySchema(schema) {
+    return async (req, res, next) => {
+        try {
+            await schema.validate(req.query);
             next();
         }catch(e) {
             return res.status(400).json({data: req.params, error: e.message}).send();
@@ -65,4 +77,4 @@ const USER_ROLES = {
 
 
 
-module.exports = { authenticateJWT, requireRole, getUserFromHeader, isOwnerOrAdmin, USER_ROLES, validateBodySchema, validateParamSchema }
+module.exports = { authenticateJWT, requireRole, getUserFromHeader, isOwnerOrAdmin, USER_ROLES, validateBodySchema, validateParamSchema, validateQuerySchema }

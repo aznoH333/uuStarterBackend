@@ -643,6 +643,25 @@ paths:
       summary: "Returns all projects where user is owner"
       produces:
         - application/json
+      parameters:
+        - name: title
+          in: query
+          schema:
+            type: string
+          required: false
+          description: Get only projects with specified name
+        - name: categoryId
+          in: query
+          schema:
+            type: string
+          required: false
+          description: Get only projects with this category id
+        - name: showOnlyApproved
+          in: query
+          schema:
+            type: boolean
+          required: false
+          description: Get only projects wit status == "approved"
       responses:
         200:
           description: OK

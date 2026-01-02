@@ -1,7 +1,9 @@
 const {Project} = require("./dbInit");
 const {sendLog, LOG_TYPE} = require("../../../common/utils/loggingUtils");
 const {ProjectEntity, PROJECT_STATUS} = require("../../../common/entities/projectEntity");
-const {authenticateJWT, getUserFromHeader, USER_ROLES, isOwnerOrAdmin, validateParamSchema, validateBodySchema} = require("../../../common/utils/authenticationUtils");
+const {authenticateJWT, getUserFromHeader, USER_ROLES, isOwnerOrAdmin, validateParamSchema, validateBodySchema,
+    validateQuerySchema
+} = require("../../../common/utils/authenticationUtils");
 const {RESPONSES} = require("../../../common/utils/responseUtils");
 const { object, string, number, bool, date} = require("yup");
 const {fetchFromService} = require("../../../common/utils/fetchUtils");
@@ -206,29 +208,31 @@ function useProjectsController(app) {
     // get all projects where user is owner
     app.get("/my-projects/all",
         authenticateJWT,
-        validateBodySchema(object({
+        validateQuerySchema(object({
             title: string(),
             categoryId: string(),
             showOnlyApproved: bool()
         }))
         , async (req, res) => {
+        console.log(req.query);
+
         const user = getUserFromHeader(req);
 
         const searchQuery = {
             ownerId: user.userId
         };
-        // hack to make body optional
-        if (req.body) {
-            if (req.body.title !== undefined) {
-                searchQuery["name"] = { $regex: req.body.title, $options: 'i' };
+        // hack to make params optional
+        if (req.query) {
+            if (req.query.title !== undefined) {
+                searchQuery["name"] = { $regex: req.query.title, $options: 'i' };
             }
 
 
-            if (req.body.categoryId !== undefined) {
-                searchQuery["categoryId"] = req.body.categoryId;
+            if (req.query.categoryId !== undefined) {
+                searchQuery["categoryId"] = req.query.categoryId;
             }
 
-            if (req.body.showOnlyApproved) {
+            if (req.query.showOnlyApproved) {
                 searchQuery["status"] = PROJECT_STATUS.APPROVED
             }
         }
