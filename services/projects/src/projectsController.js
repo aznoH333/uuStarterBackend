@@ -15,7 +15,7 @@ function useProjectsController(app) {
 
     // get all projects
     app.get("/",
-        validateBodySchema(object({
+        validateQuerySchema(object({
             title: string(),
             categoryId: string(),
             showOnlyApproved: bool()
@@ -26,17 +26,17 @@ function useProjectsController(app) {
             const searchQuery = {};
 
             // hack to make body optional
-            if (req.body) {
-                if (req.body.title !== undefined) {
-                    searchQuery["name"] = { $regex: req.body.title, $options: 'i' };
+            if (req.query) {
+                if (req.query.title !== undefined) {
+                    searchQuery["name"] = { $regex: req.query.title, $options: 'i' };
                 }
 
 
-                if (req.body.categoryId !== undefined) {
-                    searchQuery["categoryId"] = req.body.categoryId;
+                if (req.query.categoryId !== undefined) {
+                    searchQuery["categoryId"] = req.query.categoryId;
                 }
 
-                if (req.body.showOnlyApproved) {
+                if (req.query.showOnlyApproved) {
                     searchQuery["status"] = PROJECT_STATUS.APPROVED
                 }
             }
