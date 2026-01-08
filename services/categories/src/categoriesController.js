@@ -105,7 +105,8 @@ function useCategoriesController(app) {
         validateParamSchema(object({
             categoryId: string().required()
         })),
-        async (req, res) => {
+        authenticateJWT
+        , async (req, res) => {
         const {categoryId} = req.params;
         const user = getUserFromHeader(req);
 
