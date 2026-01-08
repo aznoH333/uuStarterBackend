@@ -12,7 +12,6 @@ const ProjectSchema = new mongoose.Schema({
     creationDate: { type: Date, required: true},
     lastUpdatedDate: { type: Date, required: true },
     goalAmount: { type: Number, required: true },
-    currentAmount: { type: Number, required: true },
     deadLine: { type: Date, required: true },
     status: { type: String, enum: [...Object.values(PROJECT_STATUS)], required: true },
     categoryId: { type: String, required: false },
