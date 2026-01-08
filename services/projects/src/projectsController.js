@@ -99,7 +99,6 @@ function useProjectsController(app) {
             req.body.description,
             user.userId,
             req.body.goalAmount,
-            0,
             req.body.deadLine,
             req.body.categoryId,
         );
