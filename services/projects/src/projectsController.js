@@ -172,7 +172,7 @@ function useProjectsController(app) {
     });
 
     /**
-     * "Deletes" project (sets status to "CLOSED")
+     * "Deletes" project (sets status to "Closed")
      * @param projectId : String
      */
     app.delete(
@@ -186,11 +186,11 @@ function useProjectsController(app) {
         const user = getUserFromHeader(req);
 
         try {
+            const project = await Project.findById(projectId);
             if (!isOwnerOrAdmin(user, project.ownerId)) {
-                return RESPONSES.PERMISSION_DENIED(res, { reason: "insufficient permisions for user", user: user});
+                return RESPONSES.PERMISSION_DENIED(res, { reason: "insufficient permissions for user", user: user});
             }
-            const project = await Project.findByIdAndDelete(projectId);
-            project.status = "CLOSED"
+            project.status = "Closed"
             project.save()
             sendLog("Deleted project : " + project._id.toString(), LOG_TYPE.INFO);
             res.status(200).json(project);
