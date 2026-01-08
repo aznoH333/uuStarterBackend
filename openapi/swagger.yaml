@@ -612,11 +612,6 @@ paths:
           required: true
           type: string
           description: The unique identifier of the project.
-        - name: projectId
-          in: path
-          required: true
-          type: string
-          description: The unique identifier of the project.
       responses:
         200:
           description: Project deleted successfully
